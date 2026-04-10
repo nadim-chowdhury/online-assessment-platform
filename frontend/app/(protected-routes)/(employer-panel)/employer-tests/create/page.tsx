@@ -89,7 +89,7 @@ export default function TestCreateEditPage() {
       </div>
 
       {/* Main Form Content */}
-      <div className="bg-card border border-border rounded-[16px] p-6 sm:p-8 shadow-xs">
+      <div className="max-w-4xl mx-auto">
         {step === 1 ? (
           <div className="animate-in fade-in zoom-in-95 duration-300">
             <div className="flex items-center justify-between mb-8">
