@@ -84,7 +84,7 @@ export default function SignInPage() {
               placeholder="Enter your email/User ID"
               autoComplete="email"
               aria-invalid={!!errors.email}
-              className="h-10 sm:h-11"
+              className="h-10 sm:h-11 focus-visible:border-accent focus-visible:ring-2 focus-visible:ring-accent/25"
               {...register("email")}
             />
             {errors.email && (
@@ -102,7 +102,7 @@ export default function SignInPage() {
                 placeholder="Enter your password"
                 autoComplete="current-password"
                 aria-invalid={!!errors.password}
-                className="h-10 pr-10 sm:h-11"
+                className="h-10 pr-10 sm:h-11 focus-visible:border-accent focus-visible:ring-2 focus-visible:ring-accent/25"
                 {...register("password")}
               />
               <button

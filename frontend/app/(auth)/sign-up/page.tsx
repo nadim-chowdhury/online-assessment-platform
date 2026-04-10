@@ -85,7 +85,7 @@ export default function SignUpPage() {
               placeholder="Enter your full name"
               autoComplete="name"
               aria-invalid={!!errors.name}
-              className="h-10 sm:h-11"
+              className="h-10 sm:h-11 focus-visible:border-accent focus-visible:ring-2 focus-visible:ring-accent/25"
               {...register("name")}
             />
             {errors.name && (
@@ -102,7 +102,7 @@ export default function SignUpPage() {
               placeholder="Your primary email address"
               autoComplete="email"
               aria-invalid={!!errors.email}
-              className="h-10 sm:h-11"
+              className="h-10 sm:h-11 focus-visible:border-accent focus-visible:ring-2 focus-visible:ring-accent/25"
               {...register("email")}
             />
             {errors.email && (
@@ -115,7 +115,7 @@ export default function SignUpPage() {
             <Label htmlFor="sign-up-role">Role</Label>
             <select
               id="sign-up-role"
-              className="h-10 w-full rounded-md border border-input bg-transparent px-2.5 py-1 text-sm text-foreground shadow-xs outline-none transition-[color,box-shadow] focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 sm:h-11"
+              className="h-10 w-full rounded-md border border-input bg-transparent px-2.5 py-1 text-sm text-foreground shadow-xs outline-none transition-[color,box-shadow] focus-visible:border-accent focus-visible:ring-2 focus-visible:ring-accent/25 sm:h-11"
               {...register("role")}
             >
               <option value="candidate">Candidate</option>
@@ -133,7 +133,7 @@ export default function SignUpPage() {
                 placeholder="Create a password"
                 autoComplete="new-password"
                 aria-invalid={!!errors.password}
-                className="h-10 pr-10 sm:h-11"
+                className="h-10 pr-10 focus-visible:border-accent focus-visible:ring-2 focus-visible:ring-accent/25 sm:h-11"
                 {...register("password")}
               />
               <button
@@ -166,7 +166,7 @@ export default function SignUpPage() {
                 placeholder="Confirm your password"
                 autoComplete="new-password"
                 aria-invalid={!!errors.confirmPassword}
-                className="h-10 pr-10 sm:h-11"
+                className="h-10 pr-10 focus-visible:border-accent focus-visible:ring-2 focus-visible:ring-accent/25 sm:h-11"
                 {...register("confirmPassword")}
               />
               <button
