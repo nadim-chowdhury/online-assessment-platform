@@ -2,19 +2,17 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Clock, ChevronDown, Pencil } from "lucide-react";
 
-export default function TestDetailsPage() {
-  const params = useParams();
-  console.log("🚀 ~ params:", params);
-  // Extracted dynamically based on URL (e.g. /employer-tests/create vs /employer-tests/123)
-  const isCreateMode = params?.testId === "create";
+export default function TestCreateEditPage() {
+  const searchParams = useSearchParams();
+  console.log("🚀 ~ searchParams:", searchParams);
+  const isCreateMode = searchParams.get("testId") === "create";
 
-  // Controls UI layout based on mode
   const [isEditing, setIsEditing] = useState(isCreateMode);
 
   return (
@@ -56,7 +54,6 @@ export default function TestDetailsPage() {
         <Button
           variant="outline"
           className="h-9 px-5 border-border rounded-[8px] text-[13.5px] font-semibold text-foreground hover:bg-accent/5 transition-colors"
-          asChild
         >
           <Link href="/employer-dashboard">Back to Dashboard</Link>
         </Button>
