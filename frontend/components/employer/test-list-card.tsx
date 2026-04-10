@@ -46,7 +46,7 @@ export function TestListCard({ test }: TestListCardProps) {
       <div>
         <button
           type="button"
-          className="inline-flex items-center justify-center rounded-[8px] border-[1.5px] border-accent px-5 py-2.5 text-[14px] font-[600] tracking-[-0.01em] text-accent transition-colors hover:bg-accent/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/50"
+          className="inline-flex items-center justify-center rounded-[8px] border-[1.5px] border-accent px-5 py-2.5 text-[14px] font-semibold tracking-[-0.01em] text-accent transition-colors hover:bg-accent/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/50"
         >
           View Candidates
         </button>
