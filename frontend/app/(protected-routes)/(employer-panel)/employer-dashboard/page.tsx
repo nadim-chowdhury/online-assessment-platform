@@ -1,15 +1,23 @@
 "use client";
 
 import { DashboardToolbar } from "@/components/employer/dashboard-toolbar";
+import { TestListCard } from "@/components/employer/test-list-card";
+import { TablePagination } from "@/components/common/table-pagination";
+import { mockTests } from "@/lib/mock-tests";
 
 export default function EmployerDashboard() {
   return (
-    <section className="px-4 py-6 md:px-8 md:py-8 w-full max-w-7xl mx-auto">
+    <section className="px-4 py-6 md:px-8 md:py-8 w-full max-w-7xl mx-auto flex flex-col gap-6">
       <DashboardToolbar />
+
       {/* Content area below the toolbar */}
-      <div className="mt-8 rounded-xl border border-border bg-card p-8 min-h-[400px] flex items-center justify-center text-muted-foreground">
-        Dashboard Overview (Coming Soon)
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {mockTests.map((test) => (
+          <TestListCard key={test.id} test={test} />
+        ))}
       </div>
+
+      <TablePagination />
     </section>
   );
 }

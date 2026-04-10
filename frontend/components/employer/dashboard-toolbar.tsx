@@ -1,6 +1,7 @@
 "use client";
 
 import { Input } from "@/components/ui/input";
+import { Button } from "../ui/button";
 export function DashboardToolbar() {
   return (
     <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between w-full mb-6">
@@ -23,7 +24,7 @@ export function DashboardToolbar() {
           </div>
         </div>
         {/* Icon Container */}
-        <div className="absolute right-3 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-accent/10 flex items-center justify-center pointer-events-none">
+        <Button className="absolute right-3 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-accent/10 flex items-center justify-center pointer-events-none cursor-pointer hover:bg-accent/20 transition-colors">
           <svg
             width="18"
             height="18"
@@ -90,7 +91,7 @@ export function DashboardToolbar() {
               strokeLinejoin="round"
             />
           </svg>
-        </div>
+        </Button>
       </div>
 
       <button className="flex items-center justify-center w-full sm:w-[192px] h-12 bg-accent rounded-lg cursor-pointer select-none shrink-0 transition-opacity hover:opacity-90">
