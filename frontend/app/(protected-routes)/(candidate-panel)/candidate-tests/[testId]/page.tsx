@@ -40,6 +40,7 @@ const demoQuestions = [
 export default function CandidateTestDetailsPage() {
   const [currentIdx, setCurrentIdx] = useState(0);
   const [isCompleted, setIsCompleted] = useState(false);
+  const [isTimeout, setIsTimeout] = useState(false);
 
   const activeQuestion = demoQuestions[currentIdx];
 
@@ -95,6 +96,42 @@ export default function CandidateTestDetailsPage() {
     );
   }
 
+  if (isTimeout) {
+    return (
+      <section className="px-4 py-8 md:px-8 md:py-12 w-full max-w-6xl mx-auto flex flex-col gap-5 my-4">
+        <div className="bg-card border border-border/70 rounded-[14px] px-6 py-14 flex flex-col items-center justify-center shadow-[0px_2px_4px_rgba(0,0,0,0.02)] min-h-[440px]">
+          <div className="relative w-[64px] h-[64px] mb-5">
+            <Image
+              src="/assets/timeout.png"
+              alt="Test Timeout"
+              fill
+              className="object-contain"
+              priority
+            />
+          </div>
+
+          <h2 className="text-[20px] md:text-[22px] font-bold text-slate-800 mb-3.5 tracking-tight text-center">
+            Timeout!
+          </h2>
+
+          <p className="text-[14.5px] text-slate-500 font-medium text-center mb-9 leading-relaxed text-wrap max-w-[600px]">
+            Dear Md. Naimur Rahman, Your exam time has been finished. Thank you
+            for participating.
+          </p>
+
+          <Link href="/candidate-dashboard">
+            <Button
+              variant="outline"
+              className="h-[46px] px-8 rounded-[8px] border-slate-200 text-slate-600 font-bold text-[14px] hover:bg-slate-50 shadow-none transition-colors"
+            >
+              Back to Dashboard
+            </Button>
+          </Link>
+        </div>
+      </section>
+    );
+  }
+
   return (
     <section className="px-4 py-6 md:px-8 md:py-8 w-full max-w-5xl mx-auto flex flex-col gap-5 my-4">
       {/* Top Bar / Header */}
@@ -102,7 +139,11 @@ export default function CandidateTestDetailsPage() {
         <h2 className="text-[17px] font-bold text-slate-700 tracking-tight">
           Question ({activeQuestion.id}/{demoQuestions.length})
         </h2>
-        <div className="bg-slate-100/80 px-7 py-2.5 rounded-[10px]">
+        <div
+          className="bg-slate-100/80 px-7 py-2.5 rounded-[10px] cursor-pointer hover:bg-slate-200/50 transition-colors"
+          onClick={() => setIsTimeout(true)}
+          title="Simulate Timeout Hook"
+        >
           <span className="text-[14.5px] font-bold text-slate-700">
             20:31 left
           </span>
