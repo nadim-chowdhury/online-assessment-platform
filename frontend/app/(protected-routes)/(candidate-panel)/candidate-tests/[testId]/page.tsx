@@ -114,7 +114,7 @@ export default function CandidateTestDetailsPage() {
             Timeout!
           </h2>
 
-          <p className="text-[14.5px] text-slate-500 font-medium text-center mb-9 leading-relaxed text-wrap max-w-[600px]">
+          <p className="text-[14.5px] text-slate-500 font-medium text-center mb-9 leading-relaxed text-wrap">
             Dear Md. Naimur Rahman, Your exam time has been finished. Thank you
             for participating.
           </p>
