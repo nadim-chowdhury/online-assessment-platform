@@ -39,6 +39,8 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
+  --color-footer: var(--footer);
+  --color-footer-foreground: var(--footer-foreground);
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
@@ -92,6 +94,10 @@
   --chart-3: oklch(0.45 0.18 270);
   --chart-4: oklch(0.617 0.014 247.858);
   --chart-5: oklch(0.171 0.006 285.938);
+
+  /* Footer: #130B2C deep navy */
+  --footer: oklch(0.118 0.048 281.538);
+  --footer-foreground: oklch(1 0 0);
 
   --radius: 0.625rem;
 

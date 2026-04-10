@@ -63,8 +63,7 @@ export const authOptions: NextAuthOptions = {
     strategy: "jwt",
   },
   pages: {
-    // Optionally specify your custom login page route here when it's built
-    // signIn: '/sign-in',
+    signIn: "/sign-in",
   },
 };
 
