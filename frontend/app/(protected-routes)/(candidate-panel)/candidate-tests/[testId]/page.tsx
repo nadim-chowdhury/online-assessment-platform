@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { RichEditor } from "@/components/employer/question-sets-form";
 
@@ -37,20 +39,61 @@ const demoQuestions = [
 
 export default function CandidateTestDetailsPage() {
   const [currentIdx, setCurrentIdx] = useState(0);
+  const [isCompleted, setIsCompleted] = useState(false);
 
   const activeQuestion = demoQuestions[currentIdx];
 
   const handleNext = () => {
     if (currentIdx < demoQuestions.length - 1) {
       setCurrentIdx((prev) => prev + 1);
+    } else {
+      setIsCompleted(true);
     }
   };
 
   const handleSkip = () => {
     if (currentIdx < demoQuestions.length - 1) {
       setCurrentIdx((prev) => prev + 1);
+    } else {
+      setIsCompleted(true);
     }
   };
+
+  if (isCompleted) {
+    return (
+      <section className="px-4 py-8 md:px-8 md:py-12 w-full max-w-6xl mx-auto flex flex-col gap-5 my-4">
+        <div className="bg-card border border-border/70 rounded-[14px] px-6 py-14 flex flex-col items-center justify-center shadow-[0px_2px_4px_rgba(0,0,0,0.02)] min-h-[440px]">
+          <div className="relative w-[64px] h-[64px] mb-5">
+            <Image
+              src="/assets/complete.png"
+              alt="Test Completed"
+              fill
+              className="object-contain"
+              priority
+            />
+          </div>
+
+          <h2 className="text-[20px] md:text-[22px] font-bold text-slate-800 mb-3.5 tracking-tight text-center">
+            Test Completed
+          </h2>
+
+          <p className="text-[14.5px] text-slate-500 font-medium text-center mb-9 leading-relaxed">
+            Congratulations! Md. Naimur Rahman, You have completed your MCQ Exam
+            for Probationary Officer. Thank you for participating.
+          </p>
+
+          <Link href="/candidate-dashboard">
+            <Button
+              variant="outline"
+              className="h-[46px] px-8 rounded-[8px] border-slate-200 text-slate-600 font-bold text-[14px] hover:bg-slate-50 shadow-none transition-colors"
+            >
+              Back to Dashboard
+            </Button>
+          </Link>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="px-4 py-6 md:px-8 md:py-8 w-full max-w-5xl mx-auto flex flex-col gap-5 my-4">
@@ -103,18 +146,18 @@ export default function CandidateTestDetailsPage() {
           <Button
             variant="outline"
             onClick={handleSkip}
-            disabled={currentIdx === demoQuestions.length - 1}
-            className="h-[46px] px-6 rounded-[8px] border-slate-200 text-slate-600 font-bold text-[14px] hover:bg-slate-50 shadow-none transition-colors disabled:opacity-50"
+            className="h-[46px] px-6 rounded-[8px] border-slate-200 text-slate-600 font-bold text-[14px] hover:bg-slate-50 shadow-none transition-colors"
           >
             Skip this Question
           </Button>
 
           <Button
             onClick={handleNext}
-            disabled={currentIdx === demoQuestions.length - 1}
-            className="h-[46px] px-8 rounded-[8px] bg-[#673FED] hover:bg-[#5A35DB] text-white font-bold text-[14px] shadow-xs transition-colors disabled:opacity-50"
+            className="h-[46px] px-8 rounded-[8px] bg-[#673FED] hover:bg-[#5A35DB] text-white font-bold text-[14px] shadow-xs transition-colors"
           >
-            Save & Continue
+            {currentIdx === demoQuestions.length - 1
+              ? "Submit & Finish"
+              : "Save & Continue"}
           </Button>
         </div>
       </div>
