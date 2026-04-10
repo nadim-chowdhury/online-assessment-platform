@@ -3,9 +3,15 @@
 import { Input } from "@/components/ui/input";
 import { Button } from "../ui/button";
 import Link from "next/link";
-export function DashboardToolbar() {
+
+interface DashboardToolbarProps {
+  searchQuery?: string;
+  setSearchQuery?: (val: string) => void;
+}
+
+export function DashboardToolbar({ searchQuery = "", setSearchQuery }: DashboardToolbarProps = {}) {
   return (
-    <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between w-full mb-6">
+    <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between w-full">
       <h2 className="text-xl font-semibold text-foreground whitespace-nowrap select-none">
         Online Tests
       </h2>
@@ -19,8 +25,10 @@ export function DashboardToolbar() {
           <div className="flex items-center h-full w-full bg-card rounded-[7px] overflow-hidden px-[2px]">
             <Input
               type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery?.(e.target.value)}
               placeholder="Search by exam title"
-              className="h-full border-0 shadow-none focus-visible:ring-0 text-[10.5px] text-muted-foreground bg-transparent placeholder:text-muted-foreground font-medium tracking-[0.015em] pr-12 px-4 rounded-none"
+              className="h-full border-0 shadow-none focus-visible:ring-0 text-[13px] text-muted-foreground bg-transparent placeholder:text-muted-foreground font-medium tracking-[0.015em] pr-12 px-4 rounded-none"
             />
           </div>
         </div>
