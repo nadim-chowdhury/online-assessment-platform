@@ -12,7 +12,7 @@ export default function TestDetailsPage() {
   return (
     <section className="px-4 py-6 md:px-8 md:py-8 w-full max-w-[1140px] mx-auto flex flex-col gap-6">
       {/* Top Header / Breadcrumb / Steps Bar */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between bg-card border border-border rounded-[14px] p-5 shadow-xs gap-4">
+      <div className="flex flex-col md:flex-row md:items-end justify-between bg-card rounded-[14px] p-5 shadow-xs gap-4">
         <div className="flex flex-col gap-6">
           <h1 className="text-[19px] font-semibold text-foreground tracking-tight">
             Manage Online Test
@@ -54,7 +54,7 @@ export default function TestDetailsPage() {
       </div>
 
       {/* Main View Content */}
-      <div className="bg-card border border-border rounded-[16px] p-6 sm:p-8 shadow-xs">
+      <div className="bg-card rounded-[16px] p-6 sm:p-8 shadow-xs max-w-4xl mx-auto w-full">
         <div className="flex items-center justify-between mb-8">
           <h2 className="text-[17px] font-bold text-foreground tracking-tight">
             Basic Information
@@ -122,7 +122,7 @@ export default function TestDetailsPage() {
       </div>
 
       {/* Footer Action Buttons */}
-      <div className="flex items-center justify-between bg-card border border-border rounded-[16px] p-5 shadow-xs mt-2">
+      <div className="flex items-center justify-between bg-card rounded-[16px] p-5 shadow-xs mt-2 max-w-4xl mx-auto w-full">
         <Button
           variant="outline"
           className="h-[46px] px-10 rounded-[10px] border-[1.5px] border-border text-[14.5px] font-semibold text-foreground hover:bg-accent/5 transition-colors"

@@ -29,7 +29,7 @@ export default function TestCreateEditPage() {
   return (
     <section className="px-4 py-6 md:px-8 md:py-8 w-full max-w-[1140px] mx-auto flex flex-col gap-6">
       {/* Top Header / Breadcrumb / Steps Bar */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between bg-card border border-border rounded-[14px] p-5 shadow-xs gap-4">
+      <div className="flex flex-col md:flex-row md:items-end justify-between bg-card rounded-[14px] p-5 shadow-xs gap-4">
         <div className="flex flex-col gap-6">
           <h1 className="text-[19px] font-semibold text-foreground tracking-tight">
             Manage Online Test
@@ -89,9 +89,9 @@ export default function TestCreateEditPage() {
       </div>
 
       {/* Main Form Content */}
-      <div className="max-w-4xl mx-auto">
+      <div className="max-w-4xl mx-auto w-full">
         {step === 1 ? (
-          <div className="animate-in fade-in zoom-in-95 duration-300">
+          <div className="animate-in fade-in zoom-in-95 duration-300 bg-card rounded-[12px] p-6 sm:p-7 flex flex-col shadow-xs">
             <div className="flex items-center justify-between mb-8">
               <h2 className="text-[17px] font-bold text-foreground tracking-tight">
                 Basic Information
@@ -237,7 +237,7 @@ export default function TestCreateEditPage() {
       </div>
 
       {/* Footer Action Buttons */}
-      <div className="flex items-center justify-between bg-card border border-border rounded-[16px] p-5 shadow-xs mt-2">
+      <div className="flex items-center justify-between bg-card rounded-[16px] p-5 shadow-xs mt-2 max-w-4xl mx-auto w-full">
         {step === 1 ? (
           <Link href="/employer-dashboard">
             <Button

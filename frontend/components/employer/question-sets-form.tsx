@@ -207,7 +207,7 @@ export function QuestionSetsForm() {
         {DUMMY_QUESTIONS.map((q) => (
           <div
             key={q.id}
-            className="bg-card border border-border/80 rounded-[12px] p-6 sm:p-7 flex flex-col shadow-xs"
+            className="bg-card rounded-[12px] p-6 sm:p-7 flex flex-col shadow-xs"
           >
             {/* Header */}
             <div className="flex items-center justify-between pb-4 border-b border-border/60">
@@ -283,14 +283,14 @@ export function QuestionSetsForm() {
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
         <DialogTrigger>
           <div
-            className="flex items-center justify-center w-full h-[52px] rounded-[10px] bg-accent hover:bg-accent/90 text-white text-[15px] font-semibold transition-colors shadow-xs cursor-pointer my-4"
+            className="flex items-center justify-center w-full h-[52px] rounded-[10px] bg-accent hover:bg-accent/90 text-white text-[15px] font-semibold transition-colors shadow-xs cursor-pointer my-2"
             onClick={() => setIsOpen(true)}
           >
             Add Question
           </div>
         </DialogTrigger>
 
-        <DialogContent className="sm:max-w-3xl w-[95vw] p-0 rounded-[16px] bg-card border border-border shadow-lg overflow-hidden flex flex-col gap-0 [&>button]:hidden">
+        <DialogContent className="sm:max-w-3xl w-[95vw] p-0 rounded-[16px] bg-card overflow-hidden flex flex-col gap-0 [&>button]:hidden">
           <div className="max-h-[85vh] overflow-y-auto custom-scrollbar p-6 sm:p-7">
             {/* Top Modal Header */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between w-full pb-5 gap-4">
@@ -343,46 +343,50 @@ export function QuestionSetsForm() {
 
             {/* Options List */}
             <div className="flex flex-col mt-7 gap-5 ml-6">
-              {(questionType === "text" ? options.slice(0, 1) : options).map((opt) => (
-                <div
-                  key={opt.id}
-                  className="flex flex-col gap-3 animate-in fade-in duration-200"
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className="w-[28px] h-[28px] rounded-full border border-border flex items-center justify-center text-[12.5px] font-bold text-muted-foreground bg-muted/20">
-                        {opt.label}
+              {(questionType === "text" ? options.slice(0, 1) : options).map(
+                (opt) => (
+                  <div
+                    key={opt.id}
+                    className="flex flex-col gap-3 animate-in fade-in duration-200"
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="w-[28px] h-[28px] rounded-full border border-border flex items-center justify-center text-[12.5px] font-bold text-muted-foreground bg-muted/20">
+                          {opt.label}
+                        </div>
+                        {questionType !== "text" && (
+                          <label className="flex items-center gap-2.5 cursor-pointer group select-none">
+                            <input
+                              type={questionType}
+                              name={
+                                questionType === "radio"
+                                  ? "correct-answer-group"
+                                  : `correct-answer-${opt.id}`
+                              }
+                              className="w-[16px] h-[16px] rounded-[4px] border-[1.5px] border-border text-accent focus:ring-1 focus:ring-accent focus:ring-offset-0 cursor-pointer accent-accent"
+                            />
+                            <span className="text-[13px] text-muted-foreground group-hover:text-foreground transition-colors font-medium">
+                              Set as correct answer
+                            </span>
+                          </label>
+                        )}
                       </div>
-                      {questionType !== "text" && (
-                        <label className="flex items-center gap-2.5 cursor-pointer group select-none">
-                          <input
-                            type={questionType}
-                            name={
-                              questionType === "radio"
-                                ? "correct-answer-group"
-                                : `correct-answer-${opt.id}`
-                            }
-                            className="w-[16px] h-[16px] rounded-[4px] border-[1.5px] border-border text-accent focus:ring-1 focus:ring-accent focus:ring-offset-0 cursor-pointer accent-accent"
-                          />
-                          <span className="text-[13px] text-muted-foreground group-hover:text-foreground transition-colors font-medium">
-                            Set as correct answer
-                          </span>
-                        </label>
-                      )}
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteOption(opt.id)}
+                        disabled={
+                          questionType !== "text" && options.length <= 2
+                        }
+                        className="text-muted-foreground hover:text-destructive disabled:opacity-50 disabled:hover:text-muted-foreground transition-colors px-1"
+                      >
+                        <Trash2 className="h-[18px] w-[18px]" />
+                      </button>
                     </div>
-                    <button
-                      type="button"
-                      onClick={() => handleDeleteOption(opt.id)}
-                      disabled={questionType !== "text" && options.length <= 2}
-                      className="text-muted-foreground hover:text-destructive disabled:opacity-50 disabled:hover:text-muted-foreground transition-colors px-1"
-                    >
-                      <Trash2 className="h-[18px] w-[18px]" />
-                    </button>
-                  </div>
 
-                  <RichEditor minHeight="70px" />
-                </div>
-              ))}
+                    <RichEditor minHeight="70px" />
+                  </div>
+                ),
+              )}
             </div>
 
             {/* Add Option Trigger */}
