@@ -4,6 +4,9 @@ export interface MockTest {
   candidatesCount: number;
   questionSetCount: number;
   examSlotsCount: number;
+  duration?: string;
+  questions?: number;
+  negativeMarking?: string;
 }
 
 export const mockTests: MockTest[] = [

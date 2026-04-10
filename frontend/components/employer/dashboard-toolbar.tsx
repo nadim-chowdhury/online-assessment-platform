@@ -7,9 +7,10 @@ import Link from "next/link";
 interface DashboardToolbarProps {
   searchQuery?: string;
   setSearchQuery?: (val: string) => void;
+  hideCreateButton?: boolean;
 }
 
-export function DashboardToolbar({ searchQuery = "", setSearchQuery }: DashboardToolbarProps = {}) {
+export function DashboardToolbar({ searchQuery = "", setSearchQuery, hideCreateButton = false }: DashboardToolbarProps = {}) {
   return (
     <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between w-full">
       <h2 className="text-xl font-semibold text-foreground whitespace-nowrap select-none">
@@ -103,13 +104,15 @@ export function DashboardToolbar({ searchQuery = "", setSearchQuery }: Dashboard
         </Button>
       </div>
 
-      <Link href="/employer-tests/create">
-        <button className="flex items-center justify-center w-full sm:w-[192px] h-12 bg-accent rounded-lg cursor-pointer select-none shrink-0 transition-opacity hover:opacity-90">
-          <span className="text-[13px] font-semibold text-accent-foreground tracking-[-0.01em] whitespace-nowrap">
-            Create Online Test
-          </span>
-        </button>
-      </Link>
+      {!hideCreateButton && (
+        <Link href="/employer-tests/create">
+          <button className="flex items-center justify-center w-full sm:w-[192px] h-12 bg-accent rounded-lg cursor-pointer select-none shrink-0 transition-opacity hover:opacity-90">
+            <span className="text-[13px] font-semibold text-accent-foreground tracking-[-0.01em] whitespace-nowrap">
+              Create Online Test
+            </span>
+          </button>
+        </Link>
+      )}
     </div>
   );
 }

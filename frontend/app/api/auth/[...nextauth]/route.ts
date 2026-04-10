@@ -14,7 +14,9 @@ export const authOptions: NextAuthOptions = {
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials, req) {
-        // This is a temporary mock implementation until the backend is integrated
+        // TEMPORARY BYPASS: Auth + RBAC commented out locally.
+        
+        /*
         if (!credentials?.email || !credentials.password) {
           return null;
         }
@@ -40,6 +42,15 @@ export const authOptions: NextAuthOptions = {
 
         // Return null if user data could not be retrieved
         return null;
+        */
+
+        // Unrestricted fallback returning employer directly:
+        return {
+          id: "1",
+          name: "Dev Mode User",
+          email: credentials?.email || "dev@mock.local",
+          role: "employer"
+        };
       },
     }),
   ],

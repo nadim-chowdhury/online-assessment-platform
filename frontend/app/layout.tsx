@@ -28,7 +28,7 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col" suppressHydrationWarning>
         <StoreProvider>
-          <AuthProvider>
+          {/* <AuthProvider> */}
             <ThemeProvider
               attribute="class"
               defaultTheme="light"
@@ -37,7 +37,7 @@ export default function RootLayout({
             >
               <TooltipProvider>{children}</TooltipProvider>
             </ThemeProvider>
-          </AuthProvider>
+          {/* </AuthProvider> */}
         </StoreProvider>
       </body>
     </html>

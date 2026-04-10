@@ -14,7 +14,7 @@ import {
   CheckCircle2,
 } from "lucide-react";
 
-const RichEditor = ({ minHeight = "120px" }: { minHeight?: string }) => {
+export const RichEditor = ({ minHeight = "120px" }: { minHeight?: string }) => {
   const execCommand = (
     command: string,
     value: string | undefined = undefined,
