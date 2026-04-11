@@ -2,7 +2,7 @@
 
 A full-featured **Online Assessment Platform** with two panels — **Employer Panel** and **Candidate Panel** — built as part of the iBOS Frontend Engineer evaluation.
 
-> **Live Demo:** _Coming soon_  
+> **Live Demo:** https://ibos-task-client.vercel.app
 > **Video Walkthrough:** _Coming soon_
 
 ---
