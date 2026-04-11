@@ -62,7 +62,7 @@ export default function TestDetailsPage() {
           {/* Link configures proper edit mode invocation passing testsId context */}
           <Link
             href={`/employer-tests/create?testId=${testId}`}
-            className="flex items-center gap-1.5 text-[14px] font-medium text-accent hover:opacity-80 transition-opacity"
+            className="flex items-center gap-1.5 text-[14px] font-medium text-accent hover:opacity-80 transition-colors"
           >
             <Pencil className="h-[14px] w-[14px]" />
             Edit

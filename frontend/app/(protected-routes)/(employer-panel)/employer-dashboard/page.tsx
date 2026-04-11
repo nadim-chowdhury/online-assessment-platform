@@ -1,27 +1,22 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Image from "next/image";
 import { DashboardToolbar } from "@/components/employer/dashboard-toolbar";
 import { TestListCard } from "@/components/employer/test-list-card";
 import { TablePagination } from "@/components/common/table-pagination";
-import { mockTests } from "@/lib/mock-tests";
+import { useAppSelector } from "@/store";
+import { useDebounce } from "@/hooks/use-debounce";
 
 export default function EmployerDashboard() {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(6);
   const [searchQuery, setSearchQuery] = useState("");
-  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const debouncedSearch = useDebounce(searchQuery, 500);
 
-  useEffect(() => {
-    const handler = setTimeout(() => {
-      setDebouncedSearch(searchQuery);
-      setCurrentPage(1); // Refocus back onto the primary layout root if querying boundaries shift
-    }, 500);
-    return () => clearTimeout(handler);
-  }, [searchQuery]);
+  const allTests = useAppSelector((state) => state.exam.tests);
 
-  const filteredTests = mockTests.filter((test) =>
+  const filteredTests = allTests.filter((test) =>
     test.title.toLowerCase().includes(debouncedSearch.toLowerCase()),
   );
 
@@ -62,7 +57,7 @@ export default function EmployerDashboard() {
           />
         </>
       ) : (
-        <div className="flex flex-col items-center justify-center pt-10 pb-14 w-full animate-in fade-in duration-500 bg-card rounded-xl">
+        <div className="flex flex-col items-center justify-center pt-10 pb-14 w-full animate-in fade-in duration-300 bg-card rounded-xl">
           <div className="relative w-[180px] h-[140px] mb-6">
             <Image
               src="/assets/no-test.png"

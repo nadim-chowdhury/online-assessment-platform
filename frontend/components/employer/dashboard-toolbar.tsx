@@ -1,7 +1,8 @@
 "use client";
 
+import React from "react";
 import { Input } from "@/components/ui/input";
-import { Button } from "../ui/button";
+import { Button } from "@/components/ui/button";
 import Link from "next/link";
 
 interface DashboardToolbarProps {
@@ -106,7 +107,7 @@ export function DashboardToolbar({ searchQuery = "", setSearchQuery, hideCreateB
 
       {!hideCreateButton && (
         <Link href="/employer-tests/create">
-          <button className="flex items-center justify-center w-full sm:w-[192px] h-12 bg-accent rounded-lg cursor-pointer select-none shrink-0 transition-opacity hover:opacity-90">
+          <button className="flex items-center justify-center w-full sm:w-[192px] h-12 bg-accent rounded-lg cursor-pointer select-none shrink-0 transition-all duration-200 hover:opacity-90">
             <span className="text-[13px] font-semibold text-accent-foreground tracking-[-0.01em] whitespace-nowrap">
               Create Online Test
             </span>

@@ -1,6 +1,8 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
+import { useAppDispatch, useAppSelector } from "@/store";
+import { removeQuestion, addQuestion } from "@/store/slices/examSlice";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
@@ -117,48 +119,9 @@ type OptionItem = {
   label: string;
 };
 
-const DUMMY_QUESTIONS = [
-  {
-    id: 1,
-    title: "Question 1",
-    type: "MCQ",
-    points: 1,
-    questionText: "What is the Capital of Bangladesh?",
-    textAnswer: null,
-    options: [
-      { label: "A", text: "Dhaka", correct: true },
-      { label: "B", text: "Chattogram", correct: false },
-      { label: "C", text: "Rajshahi", correct: false },
-      { label: "D", text: "Barishal", correct: false },
-    ],
-  },
-  {
-    id: 2,
-    title: "Question 2",
-    type: "Checkbox",
-    points: 1,
-    questionText: "What is the Capital of Bangladesh?",
-    textAnswer: null,
-    options: [
-      { label: "A", text: "Dhaka", correct: true },
-      { label: "B", text: "Chattogram", correct: false },
-      { label: "C", text: "Rajshashi", correct: true },
-      { label: "D", text: "Barishal", correct: false },
-    ],
-  },
-  {
-    id: 3,
-    title: "Question 3",
-    type: "Text",
-    points: 5,
-    questionText: "Write a brief of your capital city",
-    options: [],
-    textAnswer:
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam eu turpis molestie, dictum est a, mattis tellus. Sed dignissim, metus nec fringilla accumsan, risus sem sollicitudin lacus, ut interdum tellus elit sed risus. Maecenas eget condimentum velit, sit amet feugiat lectus. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Praesent auctor purus luctus enim egestas, ac scelerisque ante pulvinar. Donec ut rhoncus ex. Suspendisse ac rhoncus nisl, eu tempor urna. Curabitur vel bibendum lorem. Morbi convallis convallis diam sit amet lacinia. Aliquam in elementum tellus.",
-  },
-];
-
 export function QuestionSetsForm() {
+  const dispatch = useAppDispatch();
+  const questions = useAppSelector((state) => state.exam.questions);
   const [isOpen, setIsOpen] = useState(false);
   const [questionType, setQuestionType] = useState("checkbox");
 
@@ -204,7 +167,7 @@ export function QuestionSetsForm() {
     <div className="flex flex-col gap-6 animate-in fade-in zoom-in-95 duration-300">
       {/* Display Saved Questions List */}
       <div className="flex flex-col gap-5">
-        {DUMMY_QUESTIONS.map((q) => (
+        {questions.map((q) => (
           <div
             key={q.id}
             className="bg-card rounded-[12px] p-6 sm:p-7 flex flex-col shadow-xs"
@@ -215,10 +178,10 @@ export function QuestionSetsForm() {
                 {q.title}
               </h3>
               <div className="flex items-center gap-2.5">
-                <span className="px-3.5 py-1 rounded-full border border-border text-[12px] font-semibold text-muted-foreground bg-white">
+                <span className="px-3.5 py-1 rounded-full border border-border text-[12px] font-semibold text-muted-foreground bg-card">
                   {q.type}
                 </span>
-                <span className="px-3.5 py-1 rounded-full border border-border text-[12px] font-semibold text-muted-foreground bg-white">
+                <span className="px-3.5 py-1 rounded-full border border-border text-[12px] font-semibold text-muted-foreground bg-card">
                   {q.points} pt
                 </span>
               </div>
@@ -265,13 +228,14 @@ export function QuestionSetsForm() {
             <div className="flex items-center justify-between pt-4 pb-1 border-t border-border/60">
               <button
                 type="button"
-                className="text-accent text-[13.5px] font-semibold tracking-wide hover:opacity-80 transition-opacity"
+                className="text-accent text-[13.5px] font-semibold tracking-wide hover:opacity-80 transition-colors"
               >
                 Edit
               </button>
               <button
                 type="button"
-                className="text-destructive/80 text-[13.5px] font-semibold tracking-wide hover:opacity-80 transition-opacity"
+                onClick={() => dispatch(removeQuestion(q.id))}
+                className="text-destructive/80 text-[13.5px] font-semibold tracking-wide hover:opacity-80 transition-colors"
               >
                 Remove From Exam
               </button>
@@ -347,7 +311,7 @@ export function QuestionSetsForm() {
                 (opt) => (
                   <div
                     key={opt.id}
-                    className="flex flex-col gap-3 animate-in fade-in duration-200"
+                    className="flex flex-col gap-3 animate-in fade-in duration-300"
                   >
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
@@ -395,7 +359,7 @@ export function QuestionSetsForm() {
                 <button
                   type="button"
                   onClick={handleAddOption}
-                  className="flex items-center gap-2 text-accent text-[13.5px] font-semibold hover:opacity-80 transition-opacity"
+                  className="flex items-center gap-2 text-accent text-[13.5px] font-semibold hover:opacity-80 transition-colors"
                 >
                   <Plus className="h-4 w-4 stroke-[2.5]" /> Another options
                 </button>

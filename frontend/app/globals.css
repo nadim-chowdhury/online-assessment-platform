@@ -180,3 +180,29 @@
 button {
   cursor: pointer;
 }
+
+/* ─── Consistent focus-visible ring for all interactive elements ─── */
+@layer components {
+  .focus-ring {
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/50 focus-visible:ring-offset-1;
+  }
+}
+
+/* ─── Smooth page transitions ─── */
+@layer base {
+  main,
+  section {
+    animation: fadeIn 300ms ease-out;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

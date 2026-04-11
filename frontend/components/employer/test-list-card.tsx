@@ -1,3 +1,4 @@
+import React from "react";
 import { Users, FileText, Timer } from "lucide-react";
 import type { MockTest } from "@/lib/mock-tests";
 import Link from "next/link";
@@ -6,11 +7,11 @@ interface TestListCardProps {
   test: MockTest;
 }
 
-export function TestListCard({ test }: TestListCardProps) {
+export const TestListCard = React.memo(function TestListCard({ test }: TestListCardProps) {
   return (
     <Link
       href={`/employer-tests/${test.id}`}
-      className="cursor-pointer hover:shadow-md transition-all duration-300 rounded-2xl"
+      className="cursor-pointer hover:shadow-md transition-all duration-200 rounded-2xl"
     >
       <div className="w-full rounded-2xl border border-border bg-card p-6 flex flex-col gap-6 shadow-xs">
         <h3 className="text-[17px] font-semibold text-foreground tracking-tight">
@@ -63,4 +64,4 @@ export function TestListCard({ test }: TestListCardProps) {
       </div>
     </Link>
   );
-}
+});

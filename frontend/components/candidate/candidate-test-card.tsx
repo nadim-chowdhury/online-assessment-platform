@@ -1,3 +1,4 @@
+import React from "react";
 import { Clock, FileText, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { MockTest } from "@/lib/mock-tests";
@@ -7,14 +8,14 @@ interface CandidateTestCardProps {
   test: MockTest;
 }
 
-export function CandidateTestCard({ test }: CandidateTestCardProps) {
+export const CandidateTestCard = React.memo(function CandidateTestCard({ test }: CandidateTestCardProps) {
   // Use mock values if standard values missing on older dataset mocks
   const duration = test.duration || "30 min";
   const questionsCount = test.questions || 20;
   const negativeMarking = test.negativeMarking || "-0.25/wrong";
 
   return (
-    <div className="bg-card border border-border/80 rounded-[12px] p-6 flex flex-col justify-between hover:shadow-md transition-shadow">
+    <div className="bg-card border border-border/80 rounded-[12px] p-6 flex flex-col justify-between hover:shadow-md transition-all duration-200">
       <div>
         <h3 className="text-[16px] font-bold text-foreground leading-tight tracking-tight pr-4">
           {test.title}
@@ -65,4 +66,4 @@ export function CandidateTestCard({ test }: CandidateTestCardProps) {
       </div>
     </div>
   );
-}
+});

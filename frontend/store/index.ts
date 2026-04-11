@@ -1,13 +1,14 @@
 import { configureStore } from "@reduxjs/toolkit";
 import { TypedUseSelectorHook, useDispatch, useSelector } from "react-redux";
 import { api } from "@/services/baseApi";
+import examReducer from "@/store/slices/examSlice";
 
 export const store = configureStore({
   reducer: {
     // Add the generated reducer as a specific top-level slice
     [api.reducerPath]: api.reducer,
-    // Add other normal slices here as you create them
-    // auth: authReducer,
+    // Domain slices
+    exam: examReducer,
   },
   // Adding the api middleware enables caching, invalidation, polling,
   // and other useful features of `rtk-query`.

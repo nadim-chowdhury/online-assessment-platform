@@ -1,14 +1,17 @@
 "use client";
 
+import React, { useState, useCallback } from "react";
 import Image from "next/image";
 import { ChevronDown, Menu, X } from "lucide-react";
-import { useState } from "react";
 import { usePathname } from "next/navigation";
 
 export default function Navbar() {
   const pathname = usePathname();
-  console.log("🚀 ~ pathname:", pathname);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  const toggleMobileMenu = useCallback(() => {
+    setMobileMenuOpen((prev) => !prev);
+  }, []);
 
   return (
     <nav className="bg-card shadow-sm">
@@ -59,7 +62,7 @@ export default function Navbar() {
           {/* Dropdown chevron */}
           <button
             type="button"
-            className="p-1 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+            className="p-1 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-all duration-200"
             aria-label="User menu"
           >
             <ChevronDown className="h-4 w-4" />
@@ -69,8 +72,8 @@ export default function Navbar() {
         {/* Mobile menu toggle */}
         <button
           type="button"
-          className="sm:hidden p-2 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
-          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          className="sm:hidden p-2 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-all duration-200"
+          onClick={toggleMobileMenu}
           aria-label="Toggle menu"
         >
           {mobileMenuOpen ? (
@@ -83,7 +86,7 @@ export default function Navbar() {
 
       {/* Mobile menu */}
       {mobileMenuOpen && (
-        <div className="sm:hidden border-t border-border px-4 py-3 space-y-3">
+        <div className="sm:hidden border-t border-border px-4 py-3 space-y-3 animate-in fade-in slide-in-from-top-2 duration-200">
           <span className="block text-sm font-medium text-foreground">
             Dashboard
           </span>
