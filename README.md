@@ -3,7 +3,7 @@
 A full-featured **Online Assessment Platform** with two panels — **Employer Panel** and **Candidate Panel** — built as part of the iBOS Frontend Engineer evaluation.
 
 > **Live Demo:** https://ibos-task-client.vercel.app
-> **Video Walkthrough:** _Coming soon_
+> **Video Walkthrough:** https://youtu.be/xbwVtsPqKfI
 
 ---
 
@@ -202,7 +202,6 @@ A **NestJS** backend is included with:
 
 **Yes**, I have experience working with MCP. During this project's development, I utilized:
 
-- **Figma MCP**: Used to extract design tokens, spacing values, and color systems directly from the Figma design file into code, ensuring pixel-perfect implementation of the UI components.
 - **Browser DevTools MCP**: Leveraged for real-time debugging and DOM inspection during development, particularly useful for verifying responsive layouts and CSS specificity issues.
 
 **How MCP could be further used in this project:**

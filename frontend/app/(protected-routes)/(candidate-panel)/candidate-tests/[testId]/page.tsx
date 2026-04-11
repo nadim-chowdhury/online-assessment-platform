@@ -44,6 +44,7 @@ const demoQuestions = [
 ];
 
 export default function CandidateTestDetailsPage() {
+  const [hasStarted, setHasStarted] = useState(false);
   const [currentIdx, setCurrentIdx] = useState(0);
   const [isCompleted, setIsCompleted] = useState(false);
   const [isTimeout, setIsTimeout] = useState(false);
@@ -57,7 +58,7 @@ export default function CandidateTestDetailsPage() {
   const { formatted: timeLeft, remaining } = useCountdownTimer({
     totalSeconds: EXAM_DURATION_SECONDS,
     onTimeout: handleTimeout,
-    autoStart: true,
+    autoStart: hasStarted,
   });
 
   const handleTabSwitch = useCallback((count: number) => {
@@ -72,7 +73,7 @@ export default function CandidateTestDetailsPage() {
   }, []);
 
   const { switchCount } = useTabSwitchDetection({
-    enabled: !isCompleted && !isTimeout,
+    enabled: hasStarted && !isCompleted && !isTimeout,
     onTabSwitch: handleTabSwitch,
   });
 
@@ -86,8 +87,8 @@ export default function CandidateTestDetailsPage() {
     );
   }, []);
 
-  const { exitCount: fullscreenExitCount } = useFullscreenDetection({
-    enabled: !isCompleted && !isTimeout,
+  const { exitCount: fullscreenExitCount, enterFullscreen } = useFullscreenDetection({
+    enabled: hasStarted && !isCompleted && !isTimeout,
     onFullscreenExit: handleFullscreenExit,
   });
 
@@ -108,6 +109,30 @@ export default function CandidateTestDetailsPage() {
   }, [currentIdx]);
 
   const isTimerWarning = remaining <= 120 && remaining > 0;
+
+  if (!hasStarted) {
+    return (
+      <section className="px-4 py-8 md:px-8 md:py-12 w-full max-w-6xl mx-auto flex flex-col gap-5 my-4">
+        <div className="bg-card border border-border/70 rounded-[14px] px-6 py-14 flex flex-col items-center justify-center shadow-[0px_2px_4px_rgba(0,0,0,0.02)] min-h-[440px]">
+          <h2 className="text-[20px] md:text-[22px] font-bold text-foreground mb-3.5 tracking-tight text-center">
+            Ready to begin?
+          </h2>
+          <p className="text-[14.5px] text-muted-foreground font-medium text-center mb-9 leading-relaxed text-wrap max-w-md">
+            This exam requires you to be in fullscreen mode. Any attempts to
+            switch tabs or exit fullscreen mode will be recorded and flagged.
+          </p>
+          <Button
+            onClick={() => {
+              enterFullscreen().then(() => setHasStarted(true));
+            }}
+            className="h-[46px] px-8 rounded-[8px] bg-accent hover:bg-accent/90 text-white font-bold text-[14px] shadow-xs transition-colors"
+          >
+            Start Exam in Fullscreen
+          </Button>
+        </div>
+      </section>
+    );
+  }
 
   if (isCompleted) {
     return (
@@ -229,13 +254,13 @@ export default function CandidateTestDetailsPage() {
         {/* Dynamic Options Body */}
         <div className="flex-1 flex flex-col gap-3.5 mb-11">
           {activeQuestion.type === "text" ? (
-            <div className="mt-2 animate-in fade-in duration-300">
+            <div key={`${activeQuestion.id}-text`} className="mt-2 animate-in fade-in duration-300">
               <RichEditor minHeight="220px" />
             </div>
           ) : (
             activeQuestion.options.map((opt, i) => (
               <label
-                key={i}
+                key={`${activeQuestion.id}-opt-${i}`}
                 className="flex items-center gap-4 p-4 border border-border/60 rounded-[8px] cursor-pointer hover:bg-muted/50 transition-colors animate-in fade-in duration-300"
               >
                 <input
