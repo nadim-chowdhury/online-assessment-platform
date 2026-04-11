@@ -66,7 +66,9 @@ const initialQuestions: Question[] = [
 ];
 
 const initialState: ExamState = {
-  tests: mockTests,
+  tests: mockTests.map((t) =>
+    ["1", "2"].includes(t.id) ? { ...t, questionsList: initialQuestions } : t,
+  ),
   questions: initialQuestions,
   nextQuestionId: 4,
   nextTestId: mockTests.length + 1,
@@ -108,6 +110,12 @@ const examSlice = createSlice({
       state.nextQuestionId = 1;
     },
 
+    setQuestions(state, action: PayloadAction<Question[]>) {
+      state.questions = action.payload || [];
+      const maxId = action.payload?.reduce((max, q) => Math.max(max, q.id), 0) || 0;
+      state.nextQuestionId = maxId + 1;
+    },
+
     addTest(state, action: PayloadAction<Omit<MockTest, "id">>) {
       const newId = String(state.nextTestId);
       state.tests.unshift({ ...action.payload, id: newId });
@@ -138,6 +146,7 @@ export const {
   updateQuestion,
   removeQuestion,
   resetQuestions,
+  setQuestions,
   addTest,
   updateTest,
   removeTest,

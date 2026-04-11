@@ -87,8 +87,10 @@ export function QuestionSetsForm() {
     Question,
     "id" | "title"
   > | null => {
-    const questionText = questionEditorRef.current?.innerText?.trim() || "";
-    if (!questionText) return null;
+    const rawText = questionEditorRef.current?.innerText?.trim() || "";
+    if (!rawText) return null;
+
+    const questionText = questionEditorRef.current?.innerHTML?.trim() || "";
 
     const score = scoreInputRef.current
       ? Number(scoreInputRef.current.value) || 1
@@ -101,7 +103,7 @@ export function QuestionSetsForm() {
 
     if (type === "Text") {
       const firstOptionEl = optionEditorRefs.current.values().next().value;
-      const textAnswer = firstOptionEl?.innerText?.trim() || "";
+      const textAnswer = firstOptionEl?.innerHTML?.trim() || "";
       return {
         type,
         points: score,
@@ -113,7 +115,7 @@ export function QuestionSetsForm() {
 
     const builtOptions: QuestionOption[] = options.map((opt) => {
       const el = optionEditorRefs.current.get(opt.id);
-      const text = el?.innerText?.trim() || "";
+      const text = el?.innerHTML?.trim() || "";
       const correct = correctAnswersRef.current.has(opt.id);
       return { label: opt.label, text, correct };
     });
@@ -326,7 +328,7 @@ export function QuestionSetsForm() {
         </DialogTrigger>
 
         <DialogContent className="sm:max-w-3xl w-[95vw] p-0 rounded-[16px] bg-card overflow-hidden flex flex-col gap-0 [&>button]:hidden">
-          <div className="max-h-[85vh] overflow-y-auto custom-scrollbar p-6 sm:p-7">
+          <div key={editingQuestion?.id ?? "new"} className="max-h-[85vh] overflow-y-auto custom-scrollbar p-6 sm:p-7">
             {/* Top Modal Header */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between w-full pb-5 gap-4">
               <div className="flex items-center gap-3">

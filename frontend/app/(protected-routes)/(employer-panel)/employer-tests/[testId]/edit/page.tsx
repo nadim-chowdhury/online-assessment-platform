@@ -1,8 +1,8 @@
 "use client";
 
-import Link from "next/link";
 import { useState, useCallback, useMemo, useRef, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { useRouter, useParams } from "next/navigation";
 import { useForm, Controller } from "react-hook-form";
 import { z } from "zod/v4";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -10,12 +10,12 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ChevronDown, Check } from "lucide-react";
+import { Clock, ChevronDown, Check } from "lucide-react";
 import { TimeInput } from "@/components/common/time-input";
 import { QuestionSetsForm } from "@/components/employer/question-sets-form";
 import { useAppDispatch, useAppSelector } from "@/store";
-import { addTest, resetQuestions } from "@/store/slices/examSlice";
 import { computeDuration } from "@/lib/compute-duration";
+import { setQuestions, resetQuestions, updateTest } from "@/store/slices/examSlice";
 
 const basicInfoSchema = z.object({
   title: z.string().min(1, "Test title is required"),
@@ -31,12 +31,16 @@ const basicInfoSchema = z.object({
 
 type BasicInfoValues = z.infer<typeof basicInfoSchema>;
 
-export default function TestCreatePage() {
+export default function TestEditPage() {
   const [step, setStep] = useState(1);
   const router = useRouter();
+  const params = useParams();
   const dispatch = useAppDispatch();
   const questions = useAppSelector((state) => state.exam.questions);
+  const tests = useAppSelector((state) => state.exam.tests);
   const basicInfoRef = useRef<BasicInfoValues | null>(null);
+
+  const testId = params?.testId as string;
 
   const {
     register,
@@ -59,8 +63,31 @@ export default function TestCreatePage() {
   });
 
   useEffect(() => {
-    dispatch(resetQuestions());
-  }, [dispatch]);
+    if (testId) {
+      const existingTest = tests.find((t) => t.id === testId);
+      if (existingTest) {
+        reset({
+          title: existingTest.title || "",
+          totalCandidates: existingTest.candidatesCount || undefined,
+          totalSlots: String(existingTest.examSlotsCount || ""),
+          questionSet: existingTest.questionSetCount
+            ? `set-${existingTest.questionSetCount}`
+            : "",
+          questionType: existingTest.questionType || "mcq",
+          startTime: existingTest.startTime || "09:00",
+          endTime: existingTest.endTime || "10:00",
+        });
+
+        if (existingTest.questionsList) {
+          dispatch(setQuestions(existingTest.questionsList));
+        } else {
+          dispatch(setQuestions([]));
+        }
+      }
+    } else {
+      dispatch(resetQuestions());
+    }
+  }, [testId, tests, reset, dispatch]);
 
   const startTime = watch("startTime");
   const endTime = watch("endTime");
@@ -90,28 +117,41 @@ export default function TestCreatePage() {
 
       const computedDuration = computeDuration(info.startTime, info.endTime);
 
-      dispatch(
-        addTest({
-          title: info.title,
-          candidatesCount: info.totalCandidates,
-          questionSetCount: Number(info.questionSet.replace("set-", "")) || 1,
-          examSlotsCount: Number(info.totalSlots) || 1,
-          totalSlots: info.totalSlots,
-          questionType: info.questionType,
-          startTime: info.startTime,
-          endTime: info.endTime,
-          duration: computedDuration,
-          questions: questions.length,
-          negativeMarking: "-0.25/wrong",
-          questionsList: [...questions],
-        }),
-      );
-      toast.success("Online test created successfully!");
+      if (testId) {
+        dispatch(
+          updateTest({
+            id: testId,
+            updates: {
+              title: info.title,
+              candidatesCount: info.totalCandidates,
+              questionSetCount:
+                Number(info.questionSet.replace("set-", "")) || 1,
+              examSlotsCount: Number(info.totalSlots) || 1,
+              totalSlots: info.totalSlots,
+              questionType: info.questionType,
+              startTime: info.startTime,
+              endTime: info.endTime,
+              duration: computedDuration,
+              questions: questions.length,
+              questionsList: [...questions],
+            },
+          }),
+        );
+        toast.success("Online test updated successfully!");
+      }
 
       dispatch(resetQuestions());
       router.push("/employer-dashboard");
     }
-  }, [step, handleSubmit, onBasicInfoSubmit, dispatch, questions, router]);
+  }, [
+    step,
+    handleSubmit,
+    onBasicInfoSubmit,
+    dispatch,
+    questions,
+    router,
+    testId,
+  ]);
 
   const handlePrevStep = useCallback(() => {
     if (step === 2) {
@@ -125,7 +165,7 @@ export default function TestCreatePage() {
       <div className="flex flex-col md:flex-row md:items-end justify-between bg-card rounded-[14px] p-5 shadow-xs gap-4">
         <div className="flex flex-col gap-6">
           <h1 className="text-[19px] font-semibold text-foreground tracking-tight">
-            Create Online Test
+            Manage Online Test
           </h1>
 
           {/* Multi step progress tracker */}
@@ -177,7 +217,7 @@ export default function TestCreatePage() {
           variant="outline"
           className="h-9 px-5 border-border rounded-[8px] text-[13.5px] font-semibold text-foreground hover:bg-accent/5 transition-colors"
         >
-          <Link href="/employer-dashboard">Back to Dashboard</Link>
+          <Link href={`/employer-tests/${testId}`}>Back to Test</Link>
         </Button>
       </div>
 
@@ -407,7 +447,7 @@ export default function TestCreatePage() {
             variant="outline"
             className="h-[46px] px-10 rounded-[10px] border-[1.5px] border-border text-[14.5px] font-semibold text-foreground hover:bg-accent/5 transition-colors"
           >
-            <Link href="/employer-dashboard">Cancel</Link>
+            <Link href={`/employer-tests/${testId}`}>Cancel</Link>
           </Button>
         ) : (
           <Button
@@ -423,7 +463,7 @@ export default function TestCreatePage() {
           onClick={handleNextStep}
           className="h-[46px] px-8 rounded-[10px] bg-accent hover:bg-accent/90 text-white text-[14.5px] font-semibold transition-colors"
         >
-          {step === 1 ? "Save & Continue" : "Create Test"}
+          {step === 1 ? "Save & Continue" : "Save Changes"}
         </Button>
       </div>
     </section>

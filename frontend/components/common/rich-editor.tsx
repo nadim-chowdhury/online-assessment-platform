@@ -14,6 +14,16 @@ export const RichEditor = React.forwardRef<
     document.execCommand(command, false, value);
   };
 
+  const innerRef = React.useRef<HTMLDivElement>(null);
+
+  React.useImperativeHandle(ref, () => innerRef.current as HTMLDivElement);
+
+  React.useEffect(() => {
+    if (innerRef.current && innerRef.current.innerHTML !== defaultValue) {
+      innerRef.current.innerHTML = defaultValue;
+    }
+  }, [defaultValue]);
+
   return (
     <div className="flex flex-col border border-border rounded-xl bg-card overflow-hidden shadow-xs">
       {/* Toolbar */}
@@ -95,10 +105,9 @@ export const RichEditor = React.forwardRef<
         </div>
       </div>
       <div
-        ref={ref}
+        ref={innerRef}
         contentEditable
         suppressContentEditableWarning
-        dangerouslySetInnerHTML={{ __html: defaultValue }}
         className="p-4 bg-card focus-within:ring-0 focus-visible:outline-none custom-scrollbar"
         style={{ minHeight }}
       />
