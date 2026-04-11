@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
 import Image from "next/image";
+import { useState } from "react";
 import { DashboardToolbar } from "@/components/employer/dashboard-toolbar";
 import { CandidateTestCard } from "@/components/candidate/candidate-test-card";
 import { TablePagination } from "@/components/common/table-pagination";
@@ -16,22 +16,25 @@ export default function CandidateDashboard() {
 
   const allTests = useAppSelector((state) => state.exam.tests);
 
-  const filteredTests = allTests.filter(test => 
-    test.title.toLowerCase().includes(debouncedSearch.toLowerCase())
+  const filteredTests = allTests.filter((test) =>
+    test.title.toLowerCase().includes(debouncedSearch.toLowerCase()),
   );
 
   const totalPages = Math.ceil(filteredTests.length / itemsPerPage);
 
   const startIndex = (currentPage - 1) * itemsPerPage;
-  const paginatedTests = filteredTests.slice(startIndex, startIndex + itemsPerPage);
+  const paginatedTests = filteredTests.slice(
+    startIndex,
+    startIndex + itemsPerPage,
+  );
 
   return (
     <section className="px-4 py-6 md:px-8 md:py-8 w-full max-w-7xl mx-auto flex flex-col gap-6 mt-6">
       {/* Search Toolbar hiding Employer-specific Create button natively */}
-      <DashboardToolbar 
-        searchQuery={searchQuery} 
-        setSearchQuery={setSearchQuery} 
-        hideCreateButton={true} 
+      <DashboardToolbar
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
+        hideCreateButton={true}
       />
 
       {filteredTests.length > 0 ? (
@@ -68,7 +71,8 @@ export default function CandidateDashboard() {
             No Exams Available
           </h3>
           <p className="text-[14.5px] font-medium text-muted-foreground text-center leading-relaxed">
-            There are currently no relevant assessments published for you to take.
+            There are currently no relevant assessments published for you to
+            take.
           </p>
         </div>
       )}

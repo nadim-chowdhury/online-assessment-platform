@@ -4,7 +4,7 @@ import "./globals.css";
 import { cn } from "@/lib/utils";
 import { Toaster } from "sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { ThemeProvider } from "@/components/providers/theme-provider";
+// import { ThemeProvider } from "@/components/providers/theme-provider";
 import { StoreProvider } from "@/components/providers/store-provider";
 import { AuthProvider } from "@/components/providers/auth-provider";
 
@@ -29,19 +29,19 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col" suppressHydrationWarning>
         <StoreProvider>
-          {/* <AuthProvider> */}
-            <ThemeProvider
+          <AuthProvider>
+            {/* <ThemeProvider
               attribute="class"
               defaultTheme="light"
               enableSystem
               disableTransitionOnChange
-            >
-              <TooltipProvider>
-                {children}
-                <Toaster position="top-right" richColors closeButton />
-              </TooltipProvider>
-            </ThemeProvider>
-          {/* </AuthProvider> */}
+            > */}
+            <TooltipProvider>
+              {children}
+              <Toaster position="top-right" richColors closeButton />
+            </TooltipProvider>
+            {/* </ThemeProvider> */}
+          </AuthProvider>
         </StoreProvider>
       </body>
     </html>

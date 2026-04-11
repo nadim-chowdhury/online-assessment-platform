@@ -52,10 +52,26 @@ export default function SignUpPage() {
   const onSubmit = async (data: SignUpValues) => {
     setIsSubmitting(true);
 
-    // Mock registration — just redirect to sign-in with a toast
     try {
-      // Simulate a short delay
-      await new Promise((r) => setTimeout(r, 600));
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api"}/auth/register`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            name: data.name,
+            email: data.email,
+            password: data.password,
+            role: data.role,
+          }),
+        },
+      );
+
+      if (!res.ok) {
+        const error = await res.json();
+        toast.error(error.message || "Registration failed. Please try again.");
+        return;
+      }
 
       toast.success("Account created! Please sign in.");
       router.push("/sign-in");

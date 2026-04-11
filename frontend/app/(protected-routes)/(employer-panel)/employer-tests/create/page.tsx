@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useState, useCallback, useMemo } from "react";
+import { useState, useCallback, useMemo, useRef } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useForm, Controller } from "react-hook-form";
 import { z } from "zod/v4";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -11,8 +12,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Clock, ChevronDown, Check } from "lucide-react";
 import { QuestionSetsForm } from "@/components/employer/question-sets-form";
+import { useAppDispatch, useAppSelector } from "@/store";
+import { addTest, resetQuestions } from "@/store/slices/examSlice";
 
-// ─── Zod Validation Schema for Step 1 ──────────────────────────
 const basicInfoSchema = z.object({
   title: z.string().min(1, "Test title is required"),
   totalCandidates: z
@@ -27,13 +29,12 @@ const basicInfoSchema = z.object({
 
 type BasicInfoValues = z.infer<typeof basicInfoSchema>;
 
-// ─── Helper: Calculate duration from start/end time strings ────
 function computeDuration(startTime: string, endTime: string): string {
   if (!startTime || !endTime) return "";
   const [sh, sm] = startTime.split(":").map(Number);
   const [eh, em] = endTime.split(":").map(Number);
   let diffMinutes = eh * 60 + em - (sh * 60 + sm);
-  if (diffMinutes < 0) diffMinutes += 24 * 60; // handle overnight
+  if (diffMinutes < 0) diffMinutes += 24 * 60;
   const hours = Math.floor(diffMinutes / 60);
   const minutes = diffMinutes % 60;
   if (hours > 0 && minutes > 0) return `${hours}h ${minutes}m`;
@@ -43,6 +44,10 @@ function computeDuration(startTime: string, endTime: string): string {
 
 export default function TestCreateEditPage() {
   const [step, setStep] = useState(1);
+  const router = useRouter();
+  const dispatch = useAppDispatch();
+  const questions = useAppSelector((state) => state.exam.questions);
+  const basicInfoRef = useRef<BasicInfoValues | null>(null);
 
   const {
     register,
@@ -66,32 +71,53 @@ export default function TestCreateEditPage() {
   const startTime = watch("startTime");
   const endTime = watch("endTime");
 
-  // Computed duration derived from start/end time
   const duration = useMemo(
     () => computeDuration(startTime, endTime),
     [startTime, endTime],
   );
 
-  // Step 1 form submit handler
-  const onBasicInfoSubmit = useCallback(
-    (data: BasicInfoValues) => {
-      console.log("Step 1 — Basic Info:", data);
-      toast.success("Basic info saved successfully!");
-      setStep(2);
-    },
-    [],
-  );
+  const onBasicInfoSubmit = useCallback((data: BasicInfoValues) => {
+    basicInfoRef.current = data;
+    console.log("Step 1 — Basic Info:", data);
+    toast.success("Basic info saved successfully!");
+    setStep(2);
+  }, []);
 
   const handleNextStep = useCallback(() => {
     if (step === 1) {
-      // Trigger form validation and submit
       handleSubmit(onBasicInfoSubmit)();
     } else {
-      // Step 2 final submission
+      const info = basicInfoRef.current;
+      if (!info) {
+        toast.error("Please complete basic info first.");
+        setStep(1);
+        return;
+      }
+
+      const computedDuration = computeDuration(info.startTime, info.endTime);
+
+      dispatch(
+        addTest({
+          title: info.title,
+          candidatesCount: info.totalCandidates,
+          questionSetCount: Number(info.questionSet.replace("set-", "")) || 1,
+          examSlotsCount: Number(info.totalSlots) || 1,
+          totalSlots: info.totalSlots,
+          questionType: info.questionType,
+          startTime: info.startTime,
+          endTime: info.endTime,
+          duration: computedDuration,
+          questions: questions.length,
+          negativeMarking: "-0.25/wrong",
+          questionsList: [...questions],
+        }),
+      );
+
+      dispatch(resetQuestions());
       toast.success("Online test created successfully!");
-      console.log("Submitting final payload...");
+      router.push("/employer-dashboard");
     }
-  }, [step, handleSubmit, onBasicInfoSubmit]);
+  }, [step, handleSubmit, onBasicInfoSubmit, dispatch, questions, router]);
 
   const handlePrevStep = useCallback(() => {
     if (step === 2) {
@@ -101,14 +127,14 @@ export default function TestCreateEditPage() {
 
   return (
     <section className="px-4 py-6 md:px-8 md:py-8 w-full max-w-[1140px] mx-auto flex flex-col gap-6">
-      {/* Top Header / Breadcrumb / Steps Bar */}
+      {/* Top Header Breadcrumb Steps Bar */}
       <div className="flex flex-col md:flex-row md:items-end justify-between bg-card rounded-[14px] p-5 shadow-xs gap-4">
         <div className="flex flex-col gap-6">
           <h1 className="text-[19px] font-semibold text-foreground tracking-tight">
             Manage Online Test
           </h1>
 
-          {/* Multi-step progress tracker */}
+          {/* Multi step progress tracker */}
           <div className="flex items-center gap-4">
             {/* Step 1 */}
             <div className="flex items-center gap-2.5">
@@ -175,7 +201,7 @@ export default function TestCreateEditPage() {
               onSubmit={handleSubmit(onBasicInfoSubmit)}
               className="flex flex-col gap-6"
             >
-              {/* Row 1 - Title */}
+              {/* Row 1 Title */}
               <div>
                 <Label className="text-[14px] font-semibold text-foreground mb-2 flex pb-[2px]">
                   Online Test Title{" "}
@@ -195,7 +221,7 @@ export default function TestCreateEditPage() {
                 )}
               </div>
 
-              {/* Row 2 - Candidates & Slots */}
+              {/* Row 2 Candidates & Slots */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <Label className="text-[14px] font-semibold text-foreground mb-2 flex pb-[2px]">
@@ -220,8 +246,7 @@ export default function TestCreateEditPage() {
                 </div>
                 <div>
                   <Label className="text-[14px] font-semibold text-foreground mb-2 flex pb-[2px]">
-                    Total Slots{" "}
-                    <span className="text-destructive ml-1">*</span>
+                    Total Slots <span className="text-destructive ml-1">*</span>
                   </Label>
                   <div className="relative">
                     <Controller
@@ -255,7 +280,7 @@ export default function TestCreateEditPage() {
                 </div>
               </div>
 
-              {/* Row 3 - Question Sets & Type */}
+              {/* Row 3 Question Sets & Type */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <Label className="text-[14px] font-semibold text-foreground mb-2 flex pb-[2px]">
@@ -328,12 +353,11 @@ export default function TestCreateEditPage() {
                 </div>
               </div>
 
-              {/* Row 4 - Timers */}
+              {/* Row 4 Timers */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div>
                   <Label className="text-[14px] font-semibold text-foreground mb-2 flex pb-[2px]">
-                    Start Time{" "}
-                    <span className="text-destructive ml-1">*</span>
+                    Start Time <span className="text-destructive ml-1">*</span>
                   </Label>
                   <div className="relative">
                     <Input
@@ -357,17 +381,14 @@ export default function TestCreateEditPage() {
 
                 <div>
                   <Label className="text-[14px] font-semibold text-foreground mb-2 flex pb-[2px]">
-                    End Time{" "}
-                    <span className="text-destructive ml-1">*</span>
+                    End Time <span className="text-destructive ml-1">*</span>
                   </Label>
                   <div className="relative">
                     <Input
                       type="time"
                       placeholder="Enter end time"
                       className={`h-[46px] rounded-[8px] border-[1.5px] text-[14px] text-foreground placeholder:text-muted-foreground pr-10 w-full relative z-10 bg-transparent [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:right-2 [&::-webkit-calendar-picker-indicator]:w-8 [&::-webkit-calendar-picker-indicator]:h-full [&::-webkit-calendar-picker-indicator]:cursor-pointer [&::-webkit-calendar-picker-indicator]:opacity-0 focus-visible:border-accent focus-visible:ring-2 focus-visible:ring-accent/25 ${
-                        errors.endTime
-                          ? "border-destructive"
-                          : "border-border"
+                        errors.endTime ? "border-destructive" : "border-border"
                       }`}
                       {...register("endTime")}
                     />

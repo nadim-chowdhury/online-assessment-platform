@@ -1,17 +1,26 @@
 "use client";
 
-import React, { useState, useCallback } from "react";
+import { useState, useCallback } from "react";
 import Image from "next/image";
-import { ChevronDown, Menu, X } from "lucide-react";
+import { Menu, X, LogOut } from "lucide-react";
 import { usePathname } from "next/navigation";
+import { useSession, signOut } from "next-auth/react";
 
 export default function Navbar() {
   const pathname = usePathname();
+  const { data: session } = useSession();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const toggleMobileMenu = useCallback(() => {
     setMobileMenuOpen((prev) => !prev);
   }, []);
+
+  const handleSignOut = useCallback(() => {
+    signOut({ callbackUrl: "/sign-in" });
+  }, []);
+
+  const userName = session?.user?.name || "User";
+  const userRole = session?.user?.role || "";
 
   return (
     <nav className="bg-card shadow-sm">
@@ -49,23 +58,24 @@ export default function Navbar() {
             </svg>
           </div>
 
-          {/* Name + Ref ID */}
+          {/* Name + Role */}
           <div className="flex flex-col leading-tight">
             <span className="text-sm font-medium text-foreground">
-              Arif Hossain
+              {userName}
             </span>
-            <span className="text-xs text-muted-foreground">
-              Ref. ID - 16101121
+            <span className="text-xs text-muted-foreground capitalize">
+              {userRole}
             </span>
           </div>
 
-          {/* Dropdown chevron */}
+          {/* Sign out button */}
           <button
             type="button"
-            className="p-1 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-all duration-200"
-            aria-label="User menu"
+            onClick={handleSignOut}
+            className="p-1.5 rounded-md text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-all duration-200"
+            aria-label="Sign out"
           >
-            <ChevronDown className="h-4 w-4" />
+            <LogOut className="h-4 w-4" />
           </button>
         </div>
 
@@ -102,14 +112,24 @@ export default function Navbar() {
                 <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v1.2c0 .7.5 1.2 1.2 1.2h16.8c.7 0 1.2-.5 1.2-1.2v-1.2c0-3.2-6.4-4.8-9.6-4.8z" />
               </svg>
             </div>
-            <div className="flex flex-col leading-tight">
+            <div className="flex flex-col leading-tight flex-1">
               <span className="text-sm font-medium text-foreground">
-                Arif Hossain
+                {userName}
               </span>
-              <span className="text-xs text-muted-foreground">
-                Ref. ID - 16101121
+              <span className="text-xs text-muted-foreground capitalize">
+                {userRole}
               </span>
             </div>
+
+            {/* Mobile sign out */}
+            <button
+              type="button"
+              onClick={handleSignOut}
+              className="p-2 rounded-md text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-all duration-200"
+              aria-label="Sign out"
+            >
+              <LogOut className="h-4 w-4" />
+            </button>
           </div>
         </div>
       )}

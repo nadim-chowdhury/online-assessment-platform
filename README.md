@@ -9,16 +9,16 @@ A full-featured **Online Assessment Platform** with two panels — **Employer Pa
 
 ## 🚀 Tech Stack
 
-| Category          | Technology                              |
-| ----------------- | --------------------------------------- |
-| Framework         | Next.js 16, React 19                    |
-| State Management  | Redux Toolkit + RTK Query               |
-| Forms             | React Hook Form                         |
-| Validation        | Zod                                     |
-| UI / Styling      | Tailwind CSS v4, ShadCN/UI              |
-| Authentication    | NextAuth.js (Credentials Provider)      |
-| Backend (Bonus)   | NestJS (scaffolded)                     |
-| Language          | TypeScript                              |
+| Category         | Technology                          |
+| ---------------- | ----------------------------------- |
+| Framework        | Next.js 16, React 19                |
+| State Management | Redux Toolkit + RTK Query           |
+| Forms            | React Hook Form                     |
+| Validation       | Zod v4                              |
+| UI / Styling     | Tailwind CSS v4, ShadCN/UI          |
+| Authentication   | NextAuth.js (Credentials Provider)  |
+| Backend (Bonus)  | NestJS + TypeORM + PostgreSQL + JWT |
+| Language         | TypeScript (full-stack)             |
 
 ---
 
@@ -28,6 +28,7 @@ A full-featured **Online Assessment Platform** with two panels — **Employer Pa
 
 - **Node.js** ≥ 18.x
 - **npm** ≥ 9.x (or yarn/pnpm)
+- **PostgreSQL** (optional — only needed if running the backend)
 
 ### Installation
 
@@ -36,36 +37,49 @@ A full-featured **Online Assessment Platform** with two panels — **Employer Pa
 git clone https://github.com/nadim-chowdhury/online-assessment-platform.git
 cd online-assessment-platform
 
-# ─── Frontend ───────────────────────
+# Frontend
 cd frontend
 npm install
-cp .env.example .env.local   # or create a .env.local with NEXTAUTH_SECRET
 npm run dev
 # Open http://localhost:3000
 
-# ─── Backend (optional) ────────────
+#  Backend (optional)
 cd ../backend
 npm install
 npm run start:dev
-# API runs on http://localhost:3001
+# API runs on http://localhost:5000
 ```
 
 ### Environment Variables
 
-Create a `frontend/.env.local` file:
+**Frontend** — `frontend/.env`:
 
 ```env
-NEXTAUTH_SECRET=your-secret-key-here
 NEXTAUTH_URL=http://localhost:3000
-NEXT_PUBLIC_API_URL=http://localhost:3001
+NEXTAUTH_SECRET=your-secret-key-here
+NEXT_PUBLIC_API_URL=http://localhost:5000/api
+```
+
+**Backend** — `backend/.env`:
+
+```env
+DB_HOST=localhost
+DB_PORT=5432
+DB_USERNAME=postgres
+DB_PASSWORD=your-password
+DB_NAME=assessment_platform
+JWT_SECRET=your-jwt-secret
+JWT_EXPIRES_IN=7d
+PORT=5000
+FRONTEND_URL=http://localhost:3000
 ```
 
 ### Mock Login Credentials
 
-| Role      | Email                   | Password |
-| --------- | ----------------------- | -------- |
-| Employer  | employer@test.com       | any      |
-| Candidate | candidate@test.com      | any      |
+| Role      | Email              | Password |
+| --------- | ------------------ | -------- |
+| Employer  | employer@test.com  | any      |
+| Candidate | candidate@test.com | any      |
 
 > The system uses role-based mock auth — any email containing `"employer"` logs in as Employer, and any email containing `"candidate"` logs in as Candidate.
 
@@ -77,26 +91,43 @@ NEXT_PUBLIC_API_URL=http://localhost:3001
 online-assessment-platform/
 ├── frontend/
 │   ├── app/
-│   │   ├── (auth)/             # Login & Register pages
+│   │   ├── (auth)/                        # Login & Register pages
 │   │   ├── (protected-routes)/
+│   │   │   ├── layout.tsx                 # Shared Navbar + Footer
 │   │   │   ├── (employer-panel)/
-│   │   │   │   ├── employer-dashboard/   # Exam list with cards
-│   │   │   │   └── employer-tests/       # Create/Edit/View tests
+│   │   │   │   ├── employer-dashboard/    # Exam list with cards
+│   │   │   │   └── employer-tests/
+│   │   │   │       ├── create/            # Multi-step test creation
+│   │   │   │       └── [testId]/          # View test details
 │   │   │   └── (candidate-panel)/
-│   │   │       ├── candidate-dashboard/  # Available exams list
-│   │   │       └── candidate-tests/      # Take exam screen
-│   │   └── api/auth/           # NextAuth API route
+│   │   │       ├── candidate-dashboard/   # Available exams list
+│   │   │       └── candidate-tests/
+│   │   │           └── [testId]/          # Take exam screen
+│   │   └── api/auth/                      # NextAuth API route
 │   ├── components/
-│   │   ├── candidate/          # Candidate-specific components
-│   │   ├── employer/           # Employer-specific components
-│   │   ├── common/             # Shared components (navbar, footer, etc.)
-│   │   └── ui/                 # ShadCN/UI components
-│   ├── hooks/                  # Custom React hooks
-│   ├── store/                  # Redux Toolkit store & slices
-│   ├── services/               # RTK Query API services
-│   └── lib/                    # Utilities & mock data
-├── backend/                    # NestJS backend (scaffolded)
-└── docs/                       # Project requirements
+│   │   ├── candidate/                     # CandidateTestCard
+│   │   ├── employer/                      # TestListCard, QuestionSetsForm, DashboardToolbar
+│   │   ├── common/                        # Navbar, Footer, TablePagination, ModeToggle
+│   │   ├── providers/                     # AuthProvider, StoreProvider, ThemeProvider
+│   │   └── ui/                            # ShadCN/UI primitives
+│   ├── hooks/                             # Custom React hooks
+│   │   ├── use-countdown-timer.ts
+│   │   ├── use-tab-switch-detection.ts
+│   │   ├── use-fullscreen-detection.ts
+│   │   ├── use-debounce.ts
+│   │   └── use-mobile.ts
+│   ├── store/
+│   │   ├── index.ts                       # Redux store config
+│   │   └── slices/
+│   │       └── examSlice.ts               # Full CRUD for tests & questions
+│   ├── services/                          # RTK Query API services
+│   ├── lib/                               # Utilities & mock data
+│   └── types/                             # TypeScript declarations
+├── backend/                               # NestJS backend (bonus)
+│   └── src/
+│       ├── auth/                          # JWT auth module
+│       └── ...
+└── docs/                                  # Project requirements
 ```
 
 ---
@@ -104,35 +135,64 @@ online-assessment-platform/
 ## ✨ Features Implemented
 
 ### Employer Panel
-- ✅ Login with mock authentication (NextAuth Credentials)
-- ✅ Dashboard with exam cards (Exam Name, Candidates, Question Sets, Exam Slots)
-- ✅ "View Candidates" button on each card
-- ✅ Create Online Test — Multi-step form (Step 1: Basic Info, Step 2: Question Sets)
-- ✅ Form validation with React Hook Form + Zod
-- ✅ Auto-computed duration from start/end time
-- ✅ Add/Edit/Delete questions via modal dialog
-- ✅ Rich text editor for question content
-- ✅ Support for Checkbox, Radio, and Text question types
-- ✅ Pagination and search with debounced filtering
+
+| Feature                     | Status | Details                                                                                  |
+| --------------------------- | ------ | ---------------------------------------------------------------------------------------- |
+| Login Page                  | ✅     | NextAuth Credentials with role-based redirect                                            |
+| Dashboard — Test List       | ✅     | Cards with Exam Name, Candidates, Question Sets, Exam Slots                              |
+| Search & Pagination         | ✅     | Debounced search by title + paginated grid                                               |
+| View Candidates Button      | ✅     | On each test card                                                                        |
+| Create Online Test — Step 1 | ✅     | Basic Info form (Title, Candidates, Slots, Question Sets, Question Type, Start/End Time) |
+| Auto-computed Duration      | ✅     | Duration calculated from start/end time                                                  |
+| Form Validation             | ✅     | Zod v4 schema + React Hook Form                                                          |
+| Create Online Test — Step 2 | ✅     | Question Sets with Add/Edit/Delete via modal                                             |
+| Question Types              | ✅     | Checkbox, Radio (MCQ), and Text                                                          |
+| Rich Text Editor            | ✅     | contentEditable toolbar with B/I/lists/undo/redo                                         |
+| Full CRUD — Tests           | ✅     | Create, Read (detail page), Update, Delete via Redux                                     |
+| Full CRUD — Questions       | ✅     | Add, Edit (pre-populated modal), Remove from exam                                        |
+| Test Detail View            | ✅     | Dynamic data from Redux store by test ID                                                 |
+| New tests appear first      | ✅     | Latest created test at top of dashboard                                                  |
+| Tests visible to candidates | ✅     | Shared Redux state — employer-created tests show in candidate dashboard                  |
 
 ### Candidate Panel
-- ✅ Login with mock authentication
-- ✅ Dashboard with exam cards (Duration, Questions, Negative Marking, Start button)
-- ✅ Exam screen with dynamic question rendering (Radio, Checkbox, Text)
-- ✅ **Real countdown timer** (30-minute exam)
-- ✅ **Auto-submit on timeout**
-- ✅ Manual submit option
-- ✅ **Tab switch detection** — warns candidate with toast notification
-- ✅ **Fullscreen exit detection** — warns candidate with toast notification
-- ✅ Test Completed success screen
-- ✅ Timeout state screen
 
-### Code Quality
-- ✅ **Custom Hooks**: `useCountdownTimer`, `useTabSwitchDetection`, `useFullscreenDetection`, `useDebounce`
-- ✅ **Reusable Components**: TestListCard, CandidateTestCard, DashboardToolbar, TablePagination, RichEditor
-- ✅ **State Management**: Redux Toolkit with exam slice (CRUD operations for questions/tests)
-- ✅ **Form Validation**: Zod schemas with React Hook Form
-- ✅ **Re-render Optimization**: React.memo on card components, useCallback on handlers
+| Feature                   | Status | Details                                                        |
+| ------------------------- | ------ | -------------------------------------------------------------- |
+| Login Page                | ✅     | NextAuth Credentials with role-based redirect                  |
+| Dashboard                 | ✅     | Cards with Duration, Questions, Negative Marking, Start button |
+| Search & Pagination       | ✅     | Same toolbar as employer (Create button hidden)                |
+| Exam Screen               | ✅     | Dynamic question rendering (Radio, Checkbox, Text)             |
+| Countdown Timer           | ✅     | 30-minute real-time countdown                                  |
+| Auto-submit on Timeout    | ✅     | Triggers timeout screen when timer expires                     |
+| Manual Submit             | ✅     | Submit & Finish button on last question                        |
+| Tab Switch Detection      | ✅     | Toast warning with switch count                                |
+| Fullscreen Exit Detection | ✅     | Toast warning with exit count                                  |
+| Test Completed Screen     | ✅     | Success screen with back to dashboard                          |
+| Timeout Screen            | ✅     | Timeout notification with back to dashboard                    |
+
+### Code Quality & Best Practices
+
+| Practice                   | Implementation                                                                                                                            |
+| -------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| **Custom Hooks**           | `useCountdownTimer`, `useTabSwitchDetection`, `useFullscreenDetection`, `useDebounce`, `useMobile`                                        |
+| **Reusable Components**    | TestListCard, CandidateTestCard, DashboardToolbar, TablePagination, RichEditor, ModeToggle                                                |
+| **State Management**       | Redux Toolkit with `examSlice` — full CRUD (addTest, updateTest, removeTest, addQuestion, updateQuestion, removeQuestion, resetQuestions) |
+| **Form Validation**        | Zod v4 schemas with React Hook Form + `@hookform/resolvers`                                                                               |
+| **Re-render Optimization** | `React.memo` on card components, `useCallback` on handlers, `useMemo` for computed values                                                 |
+| **Theme Support**          | Light/Dark mode via `next-themes` with system preference detection                                                                        |
+| **Type Safety**            | Full TypeScript — typed Redux state, typed components, typed hooks                                                                        |
+
+---
+
+## 🏆 Bonus — Backend Implementation
+
+A **NestJS** backend is included with:
+
+- **JWT Authentication** — Passport.js with JWT strategy
+- **TypeORM + PostgreSQL** — Database-ready user management
+- **Bcrypt** password hashing
+- **CORS** enabled for frontend integration
+- **RESTful API** architecture
 
 ---
 
@@ -146,6 +206,7 @@ online-assessment-platform/
 - **Browser DevTools MCP**: Leveraged for real-time debugging and DOM inspection during development, particularly useful for verifying responsive layouts and CSS specificity issues.
 
 **How MCP could be further used in this project:**
+
 - **Supabase MCP**: Could replace the mock authentication and data layer with a real PostgreSQL database, enabling persistent exam storage, candidate tracking, and real-time score analytics.
 - **Chrome DevTools MCP**: Could be integrated for automated UI testing and accessibility audits during CI/CD pipeline execution.
 
@@ -155,14 +216,14 @@ online-assessment-platform/
 
 I actively use and recommend the following AI tools to accelerate frontend development:
 
-| Tool               | Usage                                                                                          |
-| ------------------ | ---------------------------------------------------------------------------------------------- |
-| **Gemini (Antigravity)** | Primary AI coding assistant — used for architecture planning, debugging, code generation, and refactoring. Extremely effective for complex multi-file changes. |
-| **GitHub Copilot** | In-editor autocomplete for boilerplate code, repetitive patterns, and unit tests.              |
-| **ChatGPT**        | Research, brainstorming component architecture, and generating documentation.                  |
-| **v0.dev**         | Rapid prototyping of UI components with ShadCN/UI and Tailwind CSS.                           |
+| Tool               | Usage                                                                                                                                                          |
+| ------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Gemini**         | Primary AI coding assistant — used for architecture planning, debugging, code generation, and refactoring. Extremely effective for complex multi-file changes. |
+| **GitHub Copilot** | In-editor autocomplete for boilerplate code, repetitive patterns, and unit tests.                                                                              |
+| **ChatGPT**        | Research, brainstorming component architecture, and generating documentation.                                                                                  |
+| **Claude**         | Rapid prototyping of UI components with ShadCN/UI and Tailwind CSS.                                                                                            |
 
-**Workflow**: I use Gemini/Antigravity as the primary development partner for architectural decisions and complex implementations, GitHub Copilot for inline suggestions, and v0.dev for initial component prototyping.
+**Workflow**: I use Gemini as the primary development partner for architectural decisions and complex implementations, GitHub Copilot for inline suggestions, and Claude for initial component prototyping.
 
 ---
 
@@ -171,10 +232,12 @@ I actively use and recommend the following AI tools to accelerate frontend devel
 To handle offline mode when a candidate loses internet during an exam, I would implement the following strategy:
 
 #### A. Local State Persistence
+
 - Use `localStorage` or `IndexedDB` to save exam progress (answered questions, selected options) on every interaction.
 - On page load, check for saved state and restore if present.
 
 #### B. Network Detection
+
 ```typescript
 // Custom hook for detecting online/offline status
 function useNetworkStatus() {
@@ -184,12 +247,12 @@ function useNetworkStatus() {
     const handleOnline = () => setIsOnline(true);
     const handleOffline = () => setIsOnline(false);
 
-    window.addEventListener('online', handleOnline);
-    window.addEventListener('offline', handleOffline);
+    window.addEventListener("online", handleOnline);
+    window.addEventListener("offline", handleOffline);
 
     return () => {
-      window.removeEventListener('online', handleOnline);
-      window.removeEventListener('offline', handleOffline);
+      window.removeEventListener("online", handleOnline);
+      window.removeEventListener("offline", handleOffline);
     };
   }, []);
 
@@ -198,14 +261,17 @@ function useNetworkStatus() {
 ```
 
 #### C. Service Worker
+
 - Register a service worker to cache the exam page and its assets.
 - The exam continues to function even without a network connection.
 
 #### D. Sync on Reconnect
+
 - When the user comes back online, automatically sync the locally stored answers with the server using a background sync mechanism.
 - Display a toast notification: "Your answers have been synced successfully."
 
 #### E. Timer Integrity
+
 - The countdown timer runs client-side and is validated server-side.
 - Store the exam start timestamp in the server — even if the client timer is manipulated, the server enforces the deadline.
 

@@ -3,29 +3,18 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 
 interface UseFullscreenDetectionOptions {
-  /** Whether detection is enabled (default: true) */
   enabled?: boolean;
-  /** Callback fired when the user exits fullscreen */
   onFullscreenExit?: (exitCount: number) => void;
 }
 
 interface UseFullscreenDetectionReturn {
-  /** Whether the browser is currently in fullscreen */
   isFullscreen: boolean;
-  /** How many times the user exited fullscreen */
   exitCount: number;
-  /** Request the browser to enter fullscreen */
   enterFullscreen: () => Promise<void>;
-  /** Exit fullscreen mode */
   exitFullscreen: () => Promise<void>;
-  /** Reset the exit counter */
   resetCount: () => void;
 }
 
-/**
- * Custom hook for managing and detecting fullscreen mode during an exam.
- * Tracks how many times the user exits fullscreen and provides controls.
- */
 export function useFullscreenDetection({
   enabled = true,
   onFullscreenExit,
@@ -46,7 +35,6 @@ export function useFullscreenDetection({
       const currentlyFullscreen = !!document.fullscreenElement;
       setIsFullscreen(currentlyFullscreen);
 
-      // Detect exit: was fullscreen, now is not
       if (wasFullscreenRef.current && !currentlyFullscreen) {
         setExitCount((prev) => {
           const newCount = prev + 1;

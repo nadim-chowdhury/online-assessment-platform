@@ -1,15 +1,16 @@
 import React from "react";
+import Link from "next/link";
 import { Clock, FileText, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { MockTest } from "@/lib/mock-tests";
-import Link from "next/link";
 
 interface CandidateTestCardProps {
   test: MockTest;
 }
 
-export const CandidateTestCard = React.memo(function CandidateTestCard({ test }: CandidateTestCardProps) {
-  // Use mock values if standard values missing on older dataset mocks
+export const CandidateTestCard = React.memo(function CandidateTestCard({
+  test,
+}: CandidateTestCardProps) {
   const duration = test.duration || "30 min";
   const questionsCount = test.questions || 20;
   const negativeMarking = test.negativeMarking || "-0.25/wrong";
@@ -55,7 +56,10 @@ export const CandidateTestCard = React.memo(function CandidateTestCard({ test }:
       </div>
 
       <div className="mt-8 pt-1">
-        <Link href={`/candidate-tests/${test.id}`} className="block w-full max-w-[120px]">
+        <Link
+          href={`/candidate-tests/${test.id}`}
+          className="block w-full max-w-[120px]"
+        >
           <Button
             variant="outline"
             className="h-10 rounded-[10px] w-full border-accent text-accent hover:bg-accent/10 hover:text-accent transition-colors border-[1.5px] font-bold text-[13px] tracking-wide"

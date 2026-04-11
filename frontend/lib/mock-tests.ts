@@ -1,3 +1,5 @@
+import type { Question } from "@/store/slices/examSlice";
+
 export interface MockTest {
   id: string;
   title: string;
@@ -7,6 +9,11 @@ export interface MockTest {
   duration?: string;
   questions?: number;
   negativeMarking?: string;
+  totalSlots?: string;
+  questionType?: string;
+  startTime?: string;
+  endTime?: string;
+  questionsList?: Question[];
 }
 
 export const mockTests: MockTest[] = [
@@ -16,6 +23,9 @@ export const mockTests: MockTest[] = [
     candidatesCount: 10000,
     questionSetCount: 3,
     examSlotsCount: 3,
+    duration: "30 min",
+    questions: 25,
+    negativeMarking: "-0.25/wrong",
   },
   {
     id: "2",
@@ -23,6 +33,9 @@ export const mockTests: MockTest[] = [
     candidatesCount: 450,
     questionSetCount: 2,
     examSlotsCount: 5,
+    duration: "60 min",
+    questions: 40,
+    negativeMarking: "-0.50/wrong",
   },
   {
     id: "3",
@@ -30,6 +43,9 @@ export const mockTests: MockTest[] = [
     candidatesCount: 1200,
     questionSetCount: 1,
     examSlotsCount: 2,
+    duration: "45 min",
+    questions: 30,
+    negativeMarking: "-0.25/wrong",
   },
   {
     id: "4",
@@ -37,6 +53,9 @@ export const mockTests: MockTest[] = [
     candidatesCount: 850,
     questionSetCount: 4,
     examSlotsCount: 2,
+    duration: "90 min",
+    questions: 50,
+    negativeMarking: "-0.50/wrong",
   },
   {
     id: "5",
@@ -44,6 +63,9 @@ export const mockTests: MockTest[] = [
     candidatesCount: 2100,
     questionSetCount: 1,
     examSlotsCount: 4,
+    duration: "20 min",
+    questions: 15,
+    negativeMarking: "None",
   },
   {
     id: "6",
@@ -51,6 +73,9 @@ export const mockTests: MockTest[] = [
     candidatesCount: 340,
     questionSetCount: 2,
     examSlotsCount: 1,
+    duration: "60 min",
+    questions: 35,
+    negativeMarking: "-0.25/wrong",
   },
   {
     id: "7",
@@ -58,6 +83,9 @@ export const mockTests: MockTest[] = [
     candidatesCount: 290,
     questionSetCount: 2,
     examSlotsCount: 1,
+    duration: "60 min",
+    questions: 30,
+    negativeMarking: "-0.25/wrong",
   },
   {
     id: "8",
@@ -65,6 +93,9 @@ export const mockTests: MockTest[] = [
     candidatesCount: 150,
     questionSetCount: 3,
     examSlotsCount: 2,
+    duration: "45 min",
+    questions: 20,
+    negativeMarking: "None",
   },
   {
     id: "9",
@@ -72,6 +103,9 @@ export const mockTests: MockTest[] = [
     candidatesCount: 500,
     questionSetCount: 2,
     examSlotsCount: 3,
+    duration: "30 min",
+    questions: 20,
+    negativeMarking: "-0.25/wrong",
   },
   {
     id: "10",
@@ -79,5 +113,8 @@ export const mockTests: MockTest[] = [
     candidatesCount: 180,
     questionSetCount: 4,
     examSlotsCount: 2,
+    duration: "75 min",
+    questions: 45,
+    negativeMarking: "-0.50/wrong",
   },
 ];

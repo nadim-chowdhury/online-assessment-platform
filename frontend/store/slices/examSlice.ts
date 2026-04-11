@@ -1,7 +1,6 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { mockTests, MockTest } from "@/lib/mock-tests";
 
-// ─── Question Types ─────────────────────────────────────────────
 export interface QuestionOption {
   label: string;
   text: string;
@@ -18,14 +17,11 @@ export interface Question {
   options: QuestionOption[];
 }
 
-// ─── Exam/Test State ────────────────────────────────────────────
 export interface ExamState {
-  /** All available tests */
   tests: MockTest[];
-  /** Questions for the currently active test (employer create/edit flow) */
   questions: Question[];
-  /** Counter for generating unique question IDs */
   nextQuestionId: number;
+  nextTestId: number;
 }
 
 const initialQuestions: Question[] = [
@@ -73,17 +69,14 @@ const initialState: ExamState = {
   tests: mockTests,
   questions: initialQuestions,
   nextQuestionId: 4,
+  nextTestId: mockTests.length + 1,
 };
 
 const examSlice = createSlice({
   name: "exam",
   initialState,
   reducers: {
-    // ─── Question CRUD ──────────────────────────────────────────
-    addQuestion(
-      state,
-      action: PayloadAction<Omit<Question, "id" | "title">>,
-    ) {
+    addQuestion(state, action: PayloadAction<Omit<Question, "id" | "title">>) {
       const id = state.nextQuestionId;
       state.questions.push({
         ...action.payload,
@@ -97,9 +90,7 @@ const examSlice = createSlice({
       state,
       action: PayloadAction<{ id: number; updates: Partial<Question> }>,
     ) {
-      const idx = state.questions.findIndex(
-        (q) => q.id === action.payload.id,
-      );
+      const idx = state.questions.findIndex((q) => q.id === action.payload.id);
       if (idx !== -1) {
         state.questions[idx] = {
           ...state.questions[idx],
@@ -109,19 +100,46 @@ const examSlice = createSlice({
     },
 
     removeQuestion(state, action: PayloadAction<number>) {
-      state.questions = state.questions.filter(
-        (q) => q.id !== action.payload,
-      );
+      state.questions = state.questions.filter((q) => q.id !== action.payload);
     },
 
-    // ─── Test List Management ───────────────────────────────────
+    resetQuestions(state) {
+      state.questions = [];
+      state.nextQuestionId = 1;
+    },
+
     addTest(state, action: PayloadAction<Omit<MockTest, "id">>) {
-      const newId = String(state.tests.length + 1);
-      state.tests.push({ ...action.payload, id: newId });
+      const newId = String(state.nextTestId);
+      state.tests.unshift({ ...action.payload, id: newId });
+      state.nextTestId += 1;
+    },
+
+    updateTest(
+      state,
+      action: PayloadAction<{ id: string; updates: Partial<MockTest> }>,
+    ) {
+      const idx = state.tests.findIndex((t) => t.id === action.payload.id);
+      if (idx !== -1) {
+        state.tests[idx] = {
+          ...state.tests[idx],
+          ...action.payload.updates,
+        };
+      }
+    },
+
+    removeTest(state, action: PayloadAction<string>) {
+      state.tests = state.tests.filter((t) => t.id !== action.payload);
     },
   },
 });
 
-export const { addQuestion, updateQuestion, removeQuestion, addTest } =
-  examSlice.actions;
+export const {
+  addQuestion,
+  updateQuestion,
+  removeQuestion,
+  resetQuestions,
+  addTest,
+  updateTest,
+  removeTest,
+} = examSlice.actions;
 export default examSlice.reducer;

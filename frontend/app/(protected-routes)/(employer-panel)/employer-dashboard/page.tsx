@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
 import Image from "next/image";
+import { useState } from "react";
 import { DashboardToolbar } from "@/components/employer/dashboard-toolbar";
 import { TestListCard } from "@/components/employer/test-list-card";
 import { TablePagination } from "@/components/common/table-pagination";
@@ -22,7 +22,6 @@ export default function EmployerDashboard() {
 
   const totalPages = Math.ceil(filteredTests.length / itemsPerPage);
 
-  // Paginate mock tests slice
   const startIndex = (currentPage - 1) * itemsPerPage;
   const paginatedTests = filteredTests.slice(
     startIndex,
@@ -52,7 +51,7 @@ export default function EmployerDashboard() {
             onPageChange={setCurrentPage}
             onItemsPerPageChange={(val) => {
               setItemsPerPage(val);
-              setCurrentPage(1); // Reset safely to page 1 to prevent rendering bugs
+              setCurrentPage(1);
             }}
           />
         </>

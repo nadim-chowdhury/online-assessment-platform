@@ -3,35 +3,21 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 
 interface UseCountdownTimerOptions {
-  /** Total duration in seconds */
   totalSeconds: number;
-  /** Callback fired when timer reaches zero */
   onTimeout?: () => void;
-  /** Whether the timer should start immediately (default: true) */
   autoStart?: boolean;
 }
 
 interface UseCountdownTimerReturn {
-  /** Remaining time in seconds */
   remaining: number;
-  /** Formatted string "MM:SS" */
   formatted: string;
-  /** Whether the timer is currently running */
   isRunning: boolean;
-  /** Whether the timer has reached zero */
   isExpired: boolean;
-  /** Start or resume the timer */
   start: () => void;
-  /** Pause the timer */
   pause: () => void;
-  /** Reset timer to initial duration */
   reset: () => void;
 }
 
-/**
- * Custom hook for managing a countdown timer.
- * Used in the candidate exam screen for exam time tracking.
- */
 export function useCountdownTimer({
   totalSeconds,
   onTimeout,
@@ -41,7 +27,6 @@ export function useCountdownTimer({
   const [isRunning, setIsRunning] = useState(autoStart);
   const onTimeoutRef = useRef(onTimeout);
 
-  // Keep the callback ref current without causing re-renders
   useEffect(() => {
     onTimeoutRef.current = onTimeout;
   }, [onTimeout]);
@@ -55,7 +40,6 @@ export function useCountdownTimer({
         if (next <= 0) {
           clearInterval(interval);
           setIsRunning(false);
-          // Fire timeout callback on next tick to avoid state update during render
           setTimeout(() => onTimeoutRef.current?.(), 0);
           return 0;
         }

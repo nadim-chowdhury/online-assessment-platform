@@ -49,13 +49,22 @@ export default function SignInPage() {
       });
 
       if (result?.error) {
-        toast.error(
-          "Invalid credentials. Use an email containing 'employer' or 'candidate'.",
-        );
+        toast.error("Invalid email or password. Please try again.");
       } else {
         toast.success("Signed in successfully!");
-        // Redirect based on role (the middleware handles routing)
-        router.push("/");
+
+        // Fetch session to get role for redirect
+        const { getSession } = await import("next-auth/react");
+        const session = await getSession();
+        const role = session?.user?.role;
+
+        if (role === "employer") {
+          router.push("/employer-dashboard");
+        } else if (role === "candidate") {
+          router.push("/candidate-dashboard");
+        } else {
+          router.push("/");
+        }
         router.refresh();
       }
     } catch {

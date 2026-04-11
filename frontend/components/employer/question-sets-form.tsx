@@ -1,118 +1,20 @@
 "use client";
 
-import React, { useState, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
 import { useAppDispatch, useAppSelector } from "@/store";
-import { removeQuestion, addQuestion } from "@/store/slices/examSlice";
+import {
+  removeQuestion,
+  addQuestion,
+  updateQuestion,
+  Question,
+  QuestionOption,
+} from "@/store/slices/examSlice";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
-import {
-  ChevronDown,
-  Trash2,
-  Undo2,
-  Redo2,
-  List,
-  Plus,
-  CheckCircle2,
-} from "lucide-react";
-
-export const RichEditor = ({ minHeight = "120px" }: { minHeight?: string }) => {
-  const execCommand = (
-    command: string,
-    value: string | undefined = undefined,
-  ) => {
-    document.execCommand(command, false, value);
-  };
-
-  return (
-    <div className="flex flex-col border border-border rounded-xl bg-card overflow-hidden shadow-xs">
-      {/* Toolbar */}
-      <div className="flex flex-wrap items-center gap-3 sm:gap-4 border-b border-border p-2.5 px-4 bg-muted/30">
-        <div className="flex items-center gap-2.5">
-          <button
-            type="button"
-            onMouseDown={(e) => e.preventDefault()}
-            onClick={() => execCommand("undo")}
-            className="text-muted-foreground hover:text-foreground transition-colors"
-          >
-            <Undo2 className="h-4 w-4" />
-          </button>
-          <button
-            type="button"
-            onMouseDown={(e) => e.preventDefault()}
-            onClick={() => execCommand("redo")}
-            className="text-muted-foreground hover:text-foreground transition-colors"
-          >
-            <Redo2 className="h-4 w-4" />
-          </button>
-        </div>
-
-        <div className="w-px h-4 bg-border/80 hidden sm:block" />
-
-        <div className="relative flex items-center">
-          <select
-            onMouseDown={(e) => e.preventDefault()}
-            onChange={(e) => execCommand("formatBlock", e.target.value)}
-            defaultValue="P"
-            className="appearance-none bg-transparent text-[13px] font-medium text-muted-foreground hover:text-foreground transition-colors cursor-pointer focus:outline-none pr-5 py-1"
-          >
-            <option value="P">Normal text</option>
-            <option value="H1">Heading 1</option>
-            <option value="H2">Heading 2</option>
-            <option value="H3">Heading 3</option>
-          </select>
-          <ChevronDown className="h-3.5 w-3.5 absolute right-0 pointer-events-none text-muted-foreground" />
-        </div>
-
-        <div className="flex items-center gap-2.5 sm:gap-3 border-l border-r border-border/80 px-2.5 sm:px-3">
-          <button
-            type="button"
-            title="Unordered List"
-            onMouseDown={(e) => e.preventDefault()}
-            onClick={() => execCommand("insertUnorderedList")}
-            className="flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
-          >
-            <List className="h-4 w-4" />
-          </button>
-          <button
-            type="button"
-            title="Ordered List"
-            onMouseDown={(e) => e.preventDefault()}
-            onClick={() => execCommand("insertOrderedList")}
-            className="flex items-center justify-center text-muted-foreground hover:text-foreground font-bold font-sans text-[13px] w-4 h-4 leading-none tracking-tight transition-colors"
-          >
-            1.
-          </button>
-        </div>
-
-        <div className="flex items-center gap-3.5 ml-0.5">
-          <button
-            type="button"
-            onMouseDown={(e) => e.preventDefault()}
-            onClick={() => execCommand("bold")}
-            className="text-muted-foreground hover:text-foreground font-serif font-bold text-[14.5px] transition-colors"
-          >
-            B
-          </button>
-          <button
-            type="button"
-            onMouseDown={(e) => e.preventDefault()}
-            onClick={() => execCommand("italic")}
-            className="text-muted-foreground hover:text-foreground font-serif italic text-[14.5px] transition-colors"
-          >
-            I
-          </button>
-        </div>
-      </div>
-      <div
-        contentEditable
-        suppressContentEditableWarning
-        className="p-4 bg-card focus-within:ring-0 focus-visible:outline-none custom-scrollbar"
-        style={{ minHeight }}
-      />
-    </div>
-  );
-};
+import { ChevronDown, Trash2, Plus, CheckCircle2 } from "lucide-react";
+import { toast } from "sonner";
+import { RichEditor } from "@/components/common/rich-editor";
 
 type OptionItem = {
   id: string;
@@ -124,6 +26,12 @@ export function QuestionSetsForm() {
   const questions = useAppSelector((state) => state.exam.questions);
   const [isOpen, setIsOpen] = useState(false);
   const [questionType, setQuestionType] = useState("checkbox");
+  const [editingQuestion, setEditingQuestion] = useState<Question | null>(null);
+
+  const questionEditorRef = useRef<HTMLDivElement>(null);
+  const optionEditorRefs = useRef<Map<string, HTMLDivElement>>(new Map());
+  const scoreInputRef = useRef<HTMLInputElement>(null);
+  const correctAnswersRef = useRef<Set<string>>(new Set());
 
   const defaultOptions: OptionItem[] = [
     { id: "opt-1", label: "A" },
@@ -131,6 +39,14 @@ export function QuestionSetsForm() {
     { id: "opt-3", label: "C" },
   ];
   const [options, setOptions] = useState<OptionItem[]>(defaultOptions);
+
+  const setOptionRef = useCallback((id: string, el: HTMLDivElement | null) => {
+    if (el) {
+      optionEditorRefs.current.set(id, el);
+    } else {
+      optionEditorRefs.current.delete(id);
+    }
+  }, []);
 
   const handleAddOption = () => {
     setOptions((prev) => {
@@ -142,11 +58,9 @@ export function QuestionSetsForm() {
 
   const handleDeleteOption = (idToRemove: string) => {
     setOptions((prev) => {
-      // Don't allow deleting if there are less than 2 options
       if (prev.length <= 2) return prev;
 
       const filtered = prev.filter((opt) => opt.id !== idToRemove);
-      // Re-assign alphabetic labels so they remain sequential (A, B, C...)
       return filtered.map((opt, index) => ({
         ...opt,
         label: String.fromCharCode(65 + index),
@@ -154,14 +68,159 @@ export function QuestionSetsForm() {
     });
   };
 
+  const resetModalState = useCallback(() => {
+    setOptions(defaultOptions);
+    setQuestionType("checkbox");
+    setEditingQuestion(null);
+    correctAnswersRef.current.clear();
+    optionEditorRefs.current.clear();
+  }, []);
+
   const handleDeleteQuestion = () => {
-    // Reset state to defaults and close modal
     setIsOpen(false);
     setTimeout(() => {
-      setOptions(defaultOptions);
-      setQuestionType("checkbox");
-    }, 300); // Wait for Dialog transiton
+      resetModalState();
+    }, 300);
   };
+
+  const collectQuestionData = useCallback((): Omit<
+    Question,
+    "id" | "title"
+  > | null => {
+    const questionText = questionEditorRef.current?.innerText?.trim() || "";
+    if (!questionText) return null;
+
+    const score = scoreInputRef.current
+      ? Number(scoreInputRef.current.value) || 1
+      : 1;
+
+    let type: Question["type"] = "MCQ";
+    if (questionType === "checkbox") type = "Checkbox";
+    else if (questionType === "text") type = "Text";
+    else if (questionType === "radio") type = "MCQ";
+
+    if (type === "Text") {
+      const firstOptionEl = optionEditorRefs.current.values().next().value;
+      const textAnswer = firstOptionEl?.innerText?.trim() || "";
+      return {
+        type,
+        points: score,
+        questionText,
+        textAnswer,
+        options: [],
+      };
+    }
+
+    const builtOptions: QuestionOption[] = options.map((opt) => {
+      const el = optionEditorRefs.current.get(opt.id);
+      const text = el?.innerText?.trim() || "";
+      const correct = correctAnswersRef.current.has(opt.id);
+      return { label: opt.label, text, correct };
+    });
+
+    return {
+      type,
+      points: score,
+      questionText,
+      textAnswer: null,
+      options: builtOptions,
+    };
+  }, [questionType, options]);
+
+  const handleCancel = useCallback(() => {
+    setIsOpen(false);
+    setTimeout(() => {
+      resetModalState();
+    }, 300);
+  }, [resetModalState]);
+
+  const handleSave = useCallback(() => {
+    const data = collectQuestionData();
+    if (!data) {
+      toast.error("Please enter a question before saving.");
+      return;
+    }
+
+    if (editingQuestion) {
+      dispatch(updateQuestion({ id: editingQuestion.id, updates: data }));
+    } else {
+      dispatch(addQuestion(data));
+    }
+
+    setIsOpen(false);
+    setTimeout(() => {
+      resetModalState();
+    }, 300);
+  }, [collectQuestionData, dispatch, editingQuestion, resetModalState]);
+
+  const handleSaveAndAddMore = useCallback(() => {
+    const data = collectQuestionData();
+    if (!data) return;
+
+    if (editingQuestion) {
+      dispatch(updateQuestion({ id: editingQuestion.id, updates: data }));
+    } else {
+      dispatch(addQuestion(data));
+    }
+
+    resetModalState();
+    if (questionEditorRef.current) {
+      questionEditorRef.current.innerHTML = "";
+    }
+    optionEditorRefs.current.forEach((el) => {
+      el.innerHTML = "";
+    });
+    if (scoreInputRef.current) {
+      scoreInputRef.current.value = "1";
+    }
+  }, [collectQuestionData, dispatch, editingQuestion, resetModalState]);
+
+  const handleEditQuestion = useCallback((q: Question) => {
+    setEditingQuestion(q);
+    if (q.type === "MCQ") setQuestionType("radio");
+    else if (q.type === "Checkbox") setQuestionType("checkbox");
+    else setQuestionType("text");
+
+    if (q.options.length > 0) {
+      const mapped = q.options.map((opt, i) => ({
+        id: `edit-opt-${i}`,
+        label: opt.label,
+      }));
+      setOptions(mapped);
+      correctAnswersRef.current.clear();
+      q.options.forEach((opt, i) => {
+        if (opt.correct) {
+          correctAnswersRef.current.add(`edit-opt-${i}`);
+        }
+      });
+    } else {
+      setOptions([{ id: "edit-opt-0", label: "A" }]);
+    }
+
+    setIsOpen(true);
+  }, []);
+
+  const handleCorrectAnswerChange = useCallback(
+    (optId: string, checked: boolean) => {
+      if (questionType === "radio") {
+        correctAnswersRef.current.clear();
+        if (checked) {
+          correctAnswersRef.current.add(optId);
+        }
+      } else {
+        if (checked) {
+          correctAnswersRef.current.add(optId);
+        } else {
+          correctAnswersRef.current.delete(optId);
+        }
+      }
+    },
+    [questionType],
+  );
+
+  const modalQuestionNumber = editingQuestion
+    ? editingQuestion.id
+    : questions.length + 1;
 
   return (
     <div className="flex flex-col gap-6 animate-in fade-in zoom-in-95 duration-300">
@@ -228,6 +287,7 @@ export function QuestionSetsForm() {
             <div className="flex items-center justify-between pt-4 pb-1 border-t border-border/60">
               <button
                 type="button"
+                onClick={() => handleEditQuestion(q)}
                 className="text-accent text-[13.5px] font-semibold tracking-wide hover:opacity-80 transition-colors"
               >
                 Edit
@@ -244,11 +304,22 @@ export function QuestionSetsForm() {
         ))}
       </div>
 
-      <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <Dialog
+        open={isOpen}
+        onOpenChange={(open) => {
+          setIsOpen(open);
+          if (!open) {
+            setTimeout(() => resetModalState(), 300);
+          }
+        }}
+      >
         <DialogTrigger>
           <div
             className="flex items-center justify-center w-full h-[52px] rounded-[10px] bg-accent hover:bg-accent/90 text-white text-[15px] font-semibold transition-colors shadow-xs cursor-pointer my-2"
-            onClick={() => setIsOpen(true)}
+            onClick={() => {
+              resetModalState();
+              setIsOpen(true);
+            }}
           >
             Add Question
           </div>
@@ -260,10 +331,10 @@ export function QuestionSetsForm() {
             <div className="flex flex-col sm:flex-row sm:items-center justify-between w-full pb-5 gap-4">
               <div className="flex items-center gap-3">
                 <div className="w-[30px] h-[30px] rounded-full border border-border flex items-center justify-center text-[12.5px] font-semibold text-muted-foreground bg-muted/20">
-                  1
+                  {modalQuestionNumber}
                 </div>
                 <span className="text-[16px] font-bold text-foreground tracking-tight">
-                  Question 1
+                  Question {modalQuestionNumber}
                 </span>
               </div>
 
@@ -273,8 +344,9 @@ export function QuestionSetsForm() {
                     Score:
                   </span>
                   <Input
+                    ref={scoreInputRef}
                     type="number"
-                    defaultValue={1}
+                    defaultValue={editingQuestion?.points ?? 1}
                     className="w-[56px] h-[34px] text-center p-0 rounded-[8px] text-[13.5px] font-medium text-foreground border border-border focus-visible:ring-1 focus-visible:ring-accent focus-visible:border-accent"
                   />
                 </div>
@@ -303,7 +375,11 @@ export function QuestionSetsForm() {
             </div>
 
             {/* Main Question Editor */}
-            <RichEditor minHeight="110px" />
+            <RichEditor
+              ref={questionEditorRef}
+              minHeight="110px"
+              defaultValue={editingQuestion?.questionText || ""}
+            />
 
             {/* Options List */}
             <div className="flex flex-col mt-7 gap-5 ml-6">
@@ -327,6 +403,15 @@ export function QuestionSetsForm() {
                                   ? "correct-answer-group"
                                   : `correct-answer-${opt.id}`
                               }
+                              defaultChecked={correctAnswersRef.current.has(
+                                opt.id,
+                              )}
+                              onChange={(e) =>
+                                handleCorrectAnswerChange(
+                                  opt.id,
+                                  e.target.checked,
+                                )
+                              }
                               className="w-[16px] h-[16px] rounded-[4px] border-[1.5px] border-border text-accent focus:ring-1 focus:ring-accent focus:ring-offset-0 cursor-pointer accent-accent"
                             />
                             <span className="text-[13px] text-muted-foreground group-hover:text-foreground transition-colors font-medium">
@@ -347,7 +432,19 @@ export function QuestionSetsForm() {
                       </button>
                     </div>
 
-                    <RichEditor minHeight="70px" />
+                    <RichEditor
+                      ref={(el) => setOptionRef(opt.id, el)}
+                      minHeight="70px"
+                      defaultValue={
+                        editingQuestion
+                          ? questionType === "text"
+                            ? editingQuestion.textAnswer || ""
+                            : editingQuestion.options.find(
+                                (o) => o.label === opt.label,
+                              )?.text || ""
+                          : ""
+                      }
+                    />
                   </div>
                 ),
               )}
@@ -367,17 +464,29 @@ export function QuestionSetsForm() {
             )}
 
             {/* Bottom Actions */}
-            <div className="flex justify-end gap-3 mt-8 pt-5 border-t border-border">
+            <div className="flex justify-between items-center mt-8 pt-5 border-t border-border">
               <Button
                 variant="outline"
-                onClick={() => setIsOpen(false)}
-                className="border-accent text-accent hover:bg-accent/5 font-semibold px-8 h-[46px] rounded-[10px] text-[14px]"
+                onClick={handleCancel}
+                className="border-border text-foreground hover:bg-muted/50 font-semibold px-8 h-[46px] rounded-[10px] text-[14px]"
               >
-                Save
+                Cancel
               </Button>
-              <Button className="bg-accent text-white hover:bg-accent/90 font-semibold px-8 h-[46px] rounded-[10px] text-[14px] shadow-xs">
-                Save & Add More
-              </Button>
+              <div className="flex gap-3">
+                <Button
+                  variant="outline"
+                  onClick={handleSave}
+                  className="border-accent text-accent hover:bg-accent/5 font-semibold px-8 h-[46px] rounded-[10px] text-[14px]"
+                >
+                  Save
+                </Button>
+                <Button
+                  onClick={handleSaveAndAddMore}
+                  className="bg-accent text-white hover:bg-accent/90 font-semibold px-8 h-[46px] rounded-[10px] text-[14px] shadow-xs"
+                >
+                  Save & Add More
+                </Button>
+              </div>
             </div>
           </div>
         </DialogContent>

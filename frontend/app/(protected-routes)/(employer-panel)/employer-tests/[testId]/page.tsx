@@ -4,14 +4,54 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Pencil } from "lucide-react";
+import { useAppSelector } from "@/store";
 
 export default function TestDetailsPage() {
   const params = useParams();
-  const testId = params?.testId;
+  const testId = params?.testId as string;
+
+  const test = useAppSelector((state) =>
+    state.exam.tests.find((t) => t.id === testId),
+  );
+
+  if (!test) {
+    return (
+      <section className="px-4 py-6 md:px-8 md:py-8 w-full max-w-[1140px] mx-auto flex flex-col gap-6">
+        <div className="bg-card rounded-[14px] p-8 shadow-xs text-center">
+          <h2 className="text-[19px] font-semibold text-foreground tracking-tight mb-2">
+            Test Not Found
+          </h2>
+          <p className="text-[14.5px] font-medium text-muted-foreground mb-6">
+            The test you&apos;re looking for doesn&apos;t exist.
+          </p>
+          <Link href="/employer-dashboard">
+            <Button
+              variant="outline"
+              className="h-9 px-5 border-border rounded-[8px] text-[13.5px] font-semibold text-foreground hover:bg-accent/5 transition-colors"
+            >
+              Back to Dashboard
+            </Button>
+          </Link>
+        </div>
+      </section>
+    );
+  }
+
+  const durationDisplay =
+    test.duration ||
+    (test.startTime && test.endTime
+      ? (() => {
+          const [sh, sm] = test.startTime!.split(":").map(Number);
+          const [eh, em] = test.endTime!.split(":").map(Number);
+          let diff = eh * 60 + em - (sh * 60 + sm);
+          if (diff < 0) diff += 24 * 60;
+          return `${diff}`;
+        })()
+      : "—");
 
   return (
     <section className="px-4 py-6 md:px-8 md:py-8 w-full max-w-[1140px] mx-auto flex flex-col gap-6">
-      {/* Top Header / Breadcrumb / Steps Bar */}
+      {/* Top Header Breadcrumb Steps Bar */}
       <div className="flex flex-col md:flex-row md:items-end justify-between bg-card rounded-[14px] p-5 shadow-xs gap-4">
         <div className="flex flex-col gap-6">
           <h1 className="text-[19px] font-semibold text-foreground tracking-tight">
@@ -77,7 +117,7 @@ export default function TestDetailsPage() {
               Online Test Title
             </p>
             <p className="text-[14.5px] font-semibold text-foreground">
-              Psychometric Test for Management Trainee Officer
+              {test.title}
             </p>
           </div>
 
@@ -88,26 +128,32 @@ export default function TestDetailsPage() {
                 Total Candidates
               </p>
               <p className="text-[14.5px] font-semibold text-foreground">
-                10,000
+                {test.candidatesCount.toLocaleString()}
               </p>
             </div>
             <div>
               <p className="text-[13px] font-medium text-muted-foreground mb-2">
                 Total Slots
               </p>
-              <p className="text-[14.5px] font-semibold text-foreground">3</p>
+              <p className="text-[14.5px] font-semibold text-foreground">
+                {test.totalSlots || test.examSlotsCount}
+              </p>
             </div>
             <div>
               <p className="text-[13px] font-medium text-muted-foreground mb-2">
                 Total Question Set
               </p>
-              <p className="text-[14.5px] font-semibold text-foreground">2</p>
+              <p className="text-[14.5px] font-semibold text-foreground">
+                {test.questionSetCount}
+              </p>
             </div>
             <div>
               <p className="text-[13px] font-medium text-muted-foreground mb-2">
                 Duration Per Slots (Minutes)
               </p>
-              <p className="text-[14.5px] font-semibold text-foreground">30</p>
+              <p className="text-[14.5px] font-semibold text-foreground">
+                {durationDisplay}
+              </p>
             </div>
           </div>
 
@@ -116,7 +162,13 @@ export default function TestDetailsPage() {
             <p className="text-[13px] font-medium text-muted-foreground mb-2">
               Question Type
             </p>
-            <p className="text-[14.5px] font-semibold text-foreground">MCQ</p>
+            <p className="text-[14.5px] font-semibold text-foreground">
+              {test.questionType === "mcq"
+                ? "MCQ"
+                : test.questionType === "coding"
+                  ? "Coding Assessment"
+                  : test.questionType || "MCQ"}
+            </p>
           </div>
         </div>
       </div>

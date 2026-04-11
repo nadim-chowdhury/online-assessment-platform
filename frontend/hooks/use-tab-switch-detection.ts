@@ -3,25 +3,16 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 
 interface UseTabSwitchDetectionOptions {
-  /** Whether detection is enabled (default: true) */
   enabled?: boolean;
-  /** Callback fired each time the user leaves the tab */
   onTabSwitch?: (count: number) => void;
 }
 
 interface UseTabSwitchDetectionReturn {
-  /** How many times the user switched away */
   switchCount: number;
-  /** Whether the tab is currently hidden */
   isTabHidden: boolean;
-  /** Reset the switch counter */
   resetCount: () => void;
 }
 
-/**
- * Custom hook for detecting tab/window switches during an exam.
- * Uses the Page Visibility API to track when the user navigates away.
- */
 export function useTabSwitchDetection({
   enabled = true,
   onTabSwitch,

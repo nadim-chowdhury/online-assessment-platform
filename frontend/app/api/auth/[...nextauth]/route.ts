@@ -1,56 +1,57 @@
 import NextAuth, { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 
+const BACKEND_URL =
+  process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+
 export const authOptions: NextAuthOptions = {
   providers: [
     CredentialsProvider({
       name: "Credentials",
       credentials: {
-        email: {
-          label: "Email",
-          type: "email",
-          placeholder: "employer@example.com",
-        },
+        email: { label: "Email", type: "email" },
         password: { label: "Password", type: "password" },
       },
-      async authorize(credentials, req) {
-        // TEMPORARY BYPASS: Auth + RBAC commented out locally.
-        
-        /*
+      async authorize(credentials) {
         if (!credentials?.email || !credentials.password) {
           return null;
         }
 
-        const email = credentials.email.toLowerCase();
+        try {
+          const loginUrl = `${BACKEND_URL}/auth/login`;
+          console.log("[NextAuth] Attempting login to:", loginUrl);
 
-        // Assign 'employer' role if email contains 'employer', else 'candidate'
-        if (email.includes("employer")) {
+          const res = await fetch(loginUrl, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              email: credentials.email,
+              password: credentials.password,
+            }),
+          });
+
+          console.log("[NextAuth] Backend response status:", res.status);
+
+          if (!res.ok) {
+            const errorBody = await res.text();
+            console.log("[NextAuth] Backend error:", errorBody);
+            return null;
+          }
+
+          const data = await res.json();
+          console.log("[NextAuth] Login success for:", data.user.email);
+
           return {
-            id: "1",
-            name: "Mock Employer",
-            email: email,
-            role: "employer",
+            id: data.user.id,
+            name: data.user.name,
+            email: data.user.email,
+            role: data.user.role,
+            accessToken: data.access_token,
           };
-        } else if (email.includes("candidate")) {
-          return {
-            id: "2",
-            name: "Mock Candidate",
-            email: email,
-            role: "candidate",
-          };
+        } catch (error) {
+          console.error("[NextAuth] Authorize error:", error);
+          return null;
         }
-
-        // Return null if user data could not be retrieved
-        return null;
-        */
-
-        // Unrestricted fallback returning employer directly:
-        return {
-          id: "1",
-          name: "Dev Mode User",
-          email: credentials?.email || "dev@mock.local",
-          role: "employer"
-        };
       },
     }),
   ],
@@ -59,6 +60,7 @@ export const authOptions: NextAuthOptions = {
       if (user) {
         token.id = user.id;
         token.role = user.role;
+        token.accessToken = user.accessToken;
       }
       return token;
     },
@@ -66,6 +68,7 @@ export const authOptions: NextAuthOptions = {
       if (session.user) {
         session.user.id = token.id as string;
         session.user.role = token.role as string;
+        session.accessToken = token.accessToken;
       }
       return session;
     },

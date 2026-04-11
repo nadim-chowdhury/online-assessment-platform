@@ -1,16 +1,16 @@
 "use client";
 
-import { useState, useCallback } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { useState, useCallback } from "react";
 import { Button } from "@/components/ui/button";
-import { RichEditor } from "@/components/employer/question-sets-form";
+import { RichEditor } from "@/components/common/rich-editor";
 import { useCountdownTimer } from "@/hooks/use-countdown-timer";
 import { useTabSwitchDetection } from "@/hooks/use-tab-switch-detection";
 import { useFullscreenDetection } from "@/hooks/use-fullscreen-detection";
 import { toast } from "sonner";
 
-const EXAM_DURATION_SECONDS = 30 * 60; // 30 minutes
+const EXAM_DURATION_SECONDS = 30 * 60;
 
 const demoQuestions = [
   {
@@ -50,7 +50,6 @@ export default function CandidateTestDetailsPage() {
 
   const activeQuestion = demoQuestions[currentIdx];
 
-  // ─── Countdown Timer ─────────────────────────────────────────
   const handleTimeout = useCallback(() => {
     setIsTimeout(true);
   }, []);
@@ -61,12 +60,15 @@ export default function CandidateTestDetailsPage() {
     autoStart: true,
   });
 
-  // ─── Tab Switch Detection ────────────────────────────────────
   const handleTabSwitch = useCallback((count: number) => {
-    toast.warning(`⚠️ Tab switch detected! (${count} time${count > 1 ? "s" : ""})`, {
-      description: "Switching tabs during the exam is not allowed and will be reported.",
-      duration: 4000,
-    });
+    toast.warning(
+      `Tab switch detected! (${count} time${count > 1 ? "s" : ""})`,
+      {
+        description:
+          "Switching tabs during the exam is not allowed and will be reported.",
+        duration: 4000,
+      },
+    );
   }, []);
 
   const { switchCount } = useTabSwitchDetection({
@@ -74,12 +76,14 @@ export default function CandidateTestDetailsPage() {
     onTabSwitch: handleTabSwitch,
   });
 
-  // ─── Fullscreen Exit Detection ───────────────────────────────
   const handleFullscreenExit = useCallback((count: number) => {
-    toast.warning(`⚠️ Fullscreen exit detected! (${count} time${count > 1 ? "s" : ""})`, {
-      description: "Please stay in fullscreen mode during the exam.",
-      duration: 4000,
-    });
+    toast.warning(
+      `Fullscreen exit detected! (${count} time${count > 1 ? "s" : ""})`,
+      {
+        description: "Please stay in fullscreen mode during the exam.",
+        duration: 4000,
+      },
+    );
   }, []);
 
   const { exitCount: fullscreenExitCount } = useFullscreenDetection({
@@ -87,7 +91,6 @@ export default function CandidateTestDetailsPage() {
     onFullscreenExit: handleFullscreenExit,
   });
 
-  // ─── Navigation Handlers ─────────────────────────────────────
   const handleNext = useCallback(() => {
     if (currentIdx < demoQuestions.length - 1) {
       setCurrentIdx((prev) => prev + 1);
@@ -104,7 +107,6 @@ export default function CandidateTestDetailsPage() {
     }
   }, [currentIdx]);
 
-  // Determine if timer is in warning zone (last 2 minutes)
   const isTimerWarning = remaining <= 120 && remaining > 0;
 
   if (isCompleted) {
@@ -181,7 +183,7 @@ export default function CandidateTestDetailsPage() {
 
   return (
     <section className="px-4 py-6 md:px-8 md:py-8 w-full max-w-5xl mx-auto flex flex-col gap-5 my-4">
-      {/* Top Bar / Header */}
+      {/* Top Bar Header */}
       <div className="bg-card border border-border/80 rounded-[12px] p-5 flex items-center justify-between shadow-[0px_2px_4px_rgba(0,0,0,0.02)]">
         <h2 className="text-[17px] font-bold text-foreground tracking-tight">
           Question ({activeQuestion.id}/{demoQuestions.length})
@@ -193,7 +195,9 @@ export default function CandidateTestDetailsPage() {
             <div className="hidden sm:flex items-center gap-2 text-[12px] font-semibold text-orange-500 bg-orange-50 px-3 py-1.5 rounded-[8px]">
               {switchCount > 0 && <span>Tab: {switchCount}</span>}
               {switchCount > 0 && fullscreenExitCount > 0 && <span>·</span>}
-              {fullscreenExitCount > 0 && <span>FS: {fullscreenExitCount}</span>}
+              {fullscreenExitCount > 0 && (
+                <span>FS: {fullscreenExitCount}</span>
+              )}
             </div>
           )}
 

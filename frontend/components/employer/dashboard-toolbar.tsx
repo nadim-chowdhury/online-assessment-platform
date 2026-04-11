@@ -1,9 +1,8 @@
 "use client";
 
-import React from "react";
+import Link from "next/link";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import Link from "next/link";
 
 interface DashboardToolbarProps {
   searchQuery?: string;
@@ -11,7 +10,11 @@ interface DashboardToolbarProps {
   hideCreateButton?: boolean;
 }
 
-export function DashboardToolbar({ searchQuery = "", setSearchQuery, hideCreateButton = false }: DashboardToolbarProps = {}) {
+export function DashboardToolbar({
+  searchQuery = "",
+  setSearchQuery,
+  hideCreateButton = false,
+}: DashboardToolbarProps = {}) {
   return (
     <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between w-full">
       <h2 className="text-xl font-semibold text-foreground whitespace-nowrap select-none">
